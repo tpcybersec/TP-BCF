@@ -1,0 +1,148 @@
+{
+	"ProcessMessage": {
+		"Request": [
+		],
+		"Response": [
+			{
+				"TARGET": "oast.fun",
+				"PATTERN": [
+					"\"aes_key\""
+				],
+				"DATA": [
+					{
+						"CONDITION": "",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.get('data||aes_key')['value']"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['aes_key'] = RSACipher('RSA/ECB/OAEPPadding').decrypt(Utils.base64Decode(O[0]), PrivateKey=envs['Interactsh_privateKey'], OAEPHashAlg='SHA-256', MGFHashAlg='SHA-256')"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.update('data||aes_key',TEMP['aes_key'])"
+							}
+						]
+					},
+					{
+						"CONDITION": "ResponseParser.response_body.get('data||data')['value'] != None",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['DecryptedData'] = []"
+							},
+							{
+								"LOOPVAR": "ResponseParser.response_body.get('data||data')['value']",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['DecryptedData'].append(jdks.loads(AESCipher('AES/CFB/NoPadding').decrypt(Utils.base64Decode(LOOPDATA)[16:],TEMP['aes_key'],Utils.base64Decode(LOOPDATA)[:16])).getObject())"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.update('data||data',TEMP['DecryptedData'])"
+							}
+						]
+					},
+					{
+						"CONDITION": "",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false, 
+								"ExprStmt": "ResponseParser.response_headers.update('Content-Type','application/json', case_insensitive=True, allow_new_key=True)"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	"CipherTab": {
+		"EncryptRequest": [
+		],
+		"DecryptRequest": [
+		],
+		"EncryptResponse": [
+		],
+		"DecryptResponse": [
+			{
+				"TARGET": "oast.fun",
+				"PATTERN": [
+					"\"aes_key\""
+				],
+				"DATA": [
+					{
+						"CONDITION": "",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.get('data||aes_key')['value']"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['aes_key'] = RSACipher('RSA/ECB/OAEPPadding').decrypt(Utils.base64Decode(O[0]), PrivateKey=envs['Interactsh_privateKey'], OAEPHashAlg='SHA-256', MGFHashAlg='SHA-256')"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.update('data||aes_key',TEMP['aes_key'])"
+							}
+						]
+					},
+					{
+						"CONDITION": "ResponseParser.response_body.get('data||data')['value'] != None",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['DecryptedData'] = []"
+							},
+							{
+								"LOOPVAR": "ResponseParser.response_body.get('data||data')['value']",
+								"CONDITION": "",
+								"exec_func": true,
+								"ExprStmt": "TEMP['DecryptedData'].append(jdks.loads(AESCipher('AES/CFB/NoPadding').decrypt(Utils.base64Decode(LOOPDATA)[16:],TEMP['aes_key'],Utils.base64Decode(LOOPDATA)[:16])).getObject())"
+							},
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.update('data||data',TEMP['DecryptedData'])"
+							}
+						]
+					},
+					{
+						"CONDITION": "",
+						"OUTPUT": [
+							{
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false, 
+								"ExprStmt": "ResponseParser.response_headers.update('Content-Type','application/json', case_insensitive=True, allow_new_key=True)"
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
