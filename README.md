@@ -24,6 +24,7 @@
 #### Requirements:
 - Burp Suite Professional or Community
 - Jython Standalone JAR (for Python-based extensions). You can download it from: https://www.jython.org/download
+- `python` version 3 must be installed and added to the `PATH`
 
 #### Steps to Install:
 1. Clone the repository
@@ -618,6 +619,9 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
+### [TP-BCF vX.Y.Z](https://github.com/TPCyberSec/TP-BCF/tree/X.Y.Z)
+- [Fixed] Issue when installing dependencies
+
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
 - Initial release of TP-BCF
 - Support for intercepting and rewriting HTTP Requests/ Responses

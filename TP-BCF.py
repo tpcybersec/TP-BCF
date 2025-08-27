@@ -22,7 +22,29 @@ if not os.path.exists(TPBCF_DIR):
 # Add the TP-BCF site-packages directory to the Python path
 import site
 if os.path.exists(os.path.join(os.getcwd(), "requirements.txt")):
-	os.system("pip install -r \"{}\" --target \"{}\" --no-user".format(os.path.join(os.getcwd(), "requirements.txt"), os.path.join(TPBCF_DIR, "site-packages")))
+	from java.lang import Runtime
+	import java.io as io
+
+	try:
+		process = Runtime.getRuntime().exec(["python", "-m", "pip", "install", "-r", os.path.join(os.getcwd(), "requirements.txt"), "--target", os.path.join(TPBCF_DIR, "site-packages"), "--no-user"])
+
+		# stdout
+		reader_out = io.BufferedReader(io.InputStreamReader(process.getInputStream()))
+		line = reader_out.readLine()
+		while line is not None:
+			print(line)
+			line = reader_out.readLine()
+
+		# stderr
+		reader_err = io.BufferedReader(io.InputStreamReader(process.getErrorStream()))
+		line = reader_err.readLine()
+		while line is not None:
+			print(line)
+			line = reader_err.readLine()
+
+		exit_code = process.waitFor()
+	except Exception as e:
+		print(e)
 site.addsitedir(os.path.join(TPBCF_DIR, "site-packages"))
 
 import re
@@ -50,6 +72,26 @@ from modules.Crypto.Hash.SHA256 import SHA256
 from modules.Crypto.Hash.SHA384 import SHA384
 from modules.Crypto.Hash.SHA512 import SHA512
 
+
+# def setup_Chilkat(Chilkat_jar_path, Chilkat_native_path):
+# 	if os.path.exists(Chilkat_jar_path) and os.path.exists(Chilkat_native_path):
+# 		import sys
+# 		if Chilkat_jar_path not in sys.path:
+# 			sys.path.append(Chilkat_jar_path)
+# 		if Chilkat_native_path not in os.environ.get("java.library.path", ""):
+# 			os.environ["java.library.path"] = Chilkat_native_path + os.pathsep + os.environ.get("java.library.path", "")
+# 			import java.lang
+# 			java.lang.System.setProperty("java.library.path", os.environ["java.library.path"])
+# 			java.lang.ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(True)
+# 		try:
+# 			from com.chilkatsoft import CkGlobal
+# 			print("[TP-BCF] Successfully imported Chilkat module.")
+# 		except ImportError as e:
+# 			print("[TP-BCF] Error importing Chilkat module: " + str(e))
+# 	else:
+# 		print("[TP-BCF] Chilkat paths do not exist. Please check the paths.")
+
+# setup_Chilkat(r"T:\DevSources\BurpExtender\TP-BCF\chilkat-jdk21-x64\chilkat.jar", r"T:\DevSources\BurpExtender\TP-BCF\chilkat-jdk21-x64\chilkat.dll")
 
 
 EXTENSION_NAME = "TP-BCF"
