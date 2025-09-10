@@ -79,6 +79,7 @@ EXTENSION_NAME = "TP-BCF"
 EXTENSION_VERSION = "2025.8.24"
 TARGET = "tpcybersec.com"
 TEMP = dict()
+fromTool = None
 
 # Initialize CipherTab and ProcessMessage dictionaries
 CipherTab = {
@@ -627,6 +628,12 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 			or (self.config_menu.menu_intruder_encReq_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER) \
 			or (self.config_menu.menu_repeater_encReq_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER) \
 			or (self.config_menu.menu_extender_encReq_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER):
+				if toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER: fromTool = "Scanner"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_PROXY: fromTool = "Proxy"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER: fromTool = "Intruder"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER: fromTool = "Repeater"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER: fromTool = "Extender"
+
 				oriRequest = messageInfo.getRequest()
 				newRequest = self._helpers.bytesToString(oriRequest)
 
@@ -699,7 +706,7 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 							for j in range(len(ProcessMessage["Request"][i]["DATA"])):
 								O.append("")
 
-								if len(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or eval(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"]):
+								if len(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O, "fromTool":fromTool}):
 									for output in ProcessMessage["Request"][i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
@@ -738,6 +745,12 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 			or (self.config_menu.menu_intruder_decRes_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER) \
 			or (self.config_menu.menu_repeater_decRes_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER) \
 			or (self.config_menu.menu_extender_decRes_item.getState() and toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER):
+				if toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER: fromTool = "Scanner"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_PROXY: fromTool = "Proxy"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER: fromTool = "Intruder"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER: fromTool = "Repeater"
+				elif toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER: fromTool = "Extender"
+
 				oriResponse = messageInfo.getResponse()
 				newResponse = self._helpers.bytesToString(oriResponse)
 
@@ -810,7 +823,7 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 							for j in range(len(ProcessMessage["Response"][i]["DATA"])):
 								O.append("")
 
-								if len(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or eval(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"]):
+								if len(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O, "fromTool":fromTool}):
 									for output in ProcessMessage["Response"][i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
@@ -989,7 +1002,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 							for j in range(len(DecryptRequest[i]["DATA"])):
 								O.append("")
 
-								if len(DecryptRequest[i]["DATA"][j]["CONDITION"]) == 0 or eval(DecryptRequest[i]["DATA"][j]["CONDITION"]):
+								if len(DecryptRequest[i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(DecryptRequest[i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O}):
 									for output in DecryptRequest[i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
@@ -1051,7 +1064,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 							for j in range(len(DecryptResponse[i]["DATA"])):
 								O.append("")
 
-								if len(DecryptResponse[i]["DATA"][j]["CONDITION"]) == 0 or eval(DecryptResponse[i]["DATA"][j]["CONDITION"]):
+								if len(DecryptResponse[i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(DecryptResponse[i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O}):
 									for output in DecryptResponse[i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
@@ -1123,7 +1136,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 						for j in range(len(EncryptRequest[i]["DATA"])):
 							O.append("")
 
-							if len(EncryptRequest[i]["DATA"][j]["CONDITION"]) == 0 or eval(EncryptRequest[i]["DATA"][j]["CONDITION"]):
+							if len(EncryptRequest[i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(EncryptRequest[i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser,"O":O}):
 								for output in EncryptRequest[i]["DATA"][j]["OUTPUT"]:
 									LOOPVAR = output["LOOPVAR"]
 									CONDITION = output["CONDITION"]
@@ -1181,7 +1194,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 						for j in range(len(EncryptResponse[i]["DATA"])):
 							O.append("")
 
-							if len(EncryptResponse[i]["DATA"][j]["CONDITION"]) == 0 or eval(EncryptResponse[i]["DATA"][j]["CONDITION"]):
+							if len(EncryptResponse[i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(EncryptResponse[i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O}):
 								for output in EncryptResponse[i]["DATA"][j]["OUTPUT"]:
 									LOOPVAR = output["LOOPVAR"]
 									CONDITION = output["CONDITION"]

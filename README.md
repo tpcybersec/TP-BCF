@@ -84,6 +84,10 @@ envs['defaultPassword']
 _A temporary dictionary for storing intermediate values or results during rule execution_
 
 ---
+### fromTool
+_Define the tool name from which the request was sent. It is used in the Request/ Response configuration of ProcessMessage. The value of fromTool can be: Scanner, Proxy, Intruder, Repeater, Extender_
+
+---
 ### O
 _A list for storing temporary results of expressions or calculations in each processing step_
 
@@ -618,9 +622,11 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
-### [TP-BCF vX.Y.Z](https://github.com/TPCyberSec/TP-BCF/tree/X.Y.Z)
+### [TP-BCF dev](https://github.com/TPCyberSec/TP-BCF/tree/dev)
 - **Fixed**: Issue when installing dependencies
 - **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
+- **Fixed**: Security issue
+- **Add new**: Tool name (**fromTool**) sent the request
 
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
 - Initial release of TP-BCF
