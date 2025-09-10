@@ -3,6 +3,8 @@ import javax.crypto.spec.SecretKeySpec as SecretKeySpec
 import javax.crypto.spec.IvParameterSpec as IvParameterSpec
 import javax.crypto.spec.GCMParameterSpec as GCMParameterSpec
 
+import base64
+
 class AESCipher:
 	"""
 	- algorithm: str
@@ -19,7 +21,7 @@ class AESCipher:
 	- SECRET_KEY: str // length of SECRET_KEY: 16, 24, 32
 	- IV: str // length of IV: 16 for CBC, CFB, OFB, GCM
 	- GCM_Tag: int // 128
-	- Return value: str
+	- Return value: base64 encode
 	"""
 	def encrypt(self, PlainText, SECRET_KEY, IV=None, GCM_Tag=128):
 		if self.provider != None:
@@ -35,11 +37,11 @@ class AESCipher:
 			instance.init(Cipher.ENCRYPT_MODE, SecretKeySpec(SECRET_KEY, "AES"), IvParameterSpec(IV))
 
 		CipherText = instance.doFinal(PlainText)
-		return CipherText.tostring()
+		return base64.b64encode(CipherText)
 
 
 	"""
-	- CipherText: str
+	- CipherText: base64 encode
 	- SECRET_KEY: str // length of SECRET_KEY: 16, 24, 32
 	- IV: str // length of IV: 16 for CBC, CFB, OFB, GCM
 	- GCM_Tag: int // 128
@@ -58,5 +60,5 @@ class AESCipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, SecretKeySpec(SECRET_KEY, "AES"), IvParameterSpec(IV))
 
-		PlainText = instance.doFinal(CipherText)
+		PlainText = instance.doFinal(base64.b64decode(CipherText))
 		return  PlainText.tostring()

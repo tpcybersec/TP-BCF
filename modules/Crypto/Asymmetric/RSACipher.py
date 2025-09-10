@@ -19,14 +19,16 @@ class RSACipher:
 		self.provider = provider
 
 
-	"""	- PublicKey: str
+	"""
+	- PublicKey: str
 	- Return value: PublicKey object
 	"""
 	def RSAPublicKey(self, PublicKey):
 		return KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(base64.b64decode(PublicKey.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replace("\r", "").replace("\n", ""))))
 
 
-	"""	- PrivateKey: str
+	"""
+	- PrivateKey: str
 	- Return value: PrivateKey object
 	"""
 	def RSAPrivateKey(self, PrivateKey):
@@ -37,7 +39,7 @@ class RSACipher:
 	- PlainText: str
 	- PublicKey: str
 	- PrivateKey: str
-	- Return value: str
+	- Return value: base64 encode
 	"""
 	def encrypt(self, PlainText, PublicKey=None, PrivateKey=None, OAEPHashAlg=None, MGFHashAlg=None):
 		if self.provider != None:
@@ -58,11 +60,11 @@ class RSACipher:
 			instance.init(Cipher.ENCRYPT_MODE, encryptKey)
 
 		CipherText = instance.doFinal(PlainText)
-		return CipherText.tostring()
+		return base64.b64encode(CipherText)
 
 
 	"""
-	- CipherText: str
+	- CipherText: base64 encode
 	- PublicKey: str
 	- PrivateKey: str
 	- Return value: str
@@ -85,14 +87,14 @@ class RSACipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, decryptKey)
 
-		PlainText = instance.doFinal(CipherText)
+		PlainText = instance.doFinal(base64.b64decode(CipherText))
 		return  PlainText.tostring()
 
 
 	"""
 	- message: str
 	- PrivateKey: str
-	- Return value: str
+	- Return value: base64 encode
 	"""
 	def signature(self, message, PrivateKey):
 		if self.provider != None:
@@ -102,12 +104,12 @@ class RSACipher:
 
 		sign.initSign(self.RSAPrivateKey(PrivateKey))
 		sign.update(message)
-		return sign.sign().tostring()
+		return base64.b64encode(sign.sign())
 
 
 	"""
 	- message: str
-	- signedData: str
+	- signedData: base64 encode
 	- PublicKey: str
 	- Return value: boolean
 	"""
@@ -119,4 +121,4 @@ class RSACipher:
 
 		sign.initVerify(self.RSAPublicKey(PublicKey))
 		sign.update(message)
-		return sign.verify(signedData)
+		return sign.verify(base64.b64decode(signedData))

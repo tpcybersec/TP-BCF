@@ -45,11 +45,10 @@ Once loaded successfully, you should see a new `TP-BCF` menu tab on the top menu
 ---
 # 🧩 Built-in Variables and Modules/ Functions
 ## Built-in Variables
-### ([TP_HTTP_REQUEST_PARSER](https://pypi.org/project/TP-HTTP-Request-Response-Parser/)) RequestParser
+### ([TP_HTTP_REQUEST_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_request_parser)) RequestParser
 _Provides properties to access details of the current HTTP Request. Use these attributes to extract method, path, headers, cookies, body, etc. for analysis, condition checking, or data processing in your rules_
 - `RequestParser.request_method`: HTTP method (GET, POST, etc.)
-- `RequestParser.request_path`: Request path
-- `RequestParser.request_pathParams`: Path parameters
+- `RequestParser.request_paths`: Request path parts
 - `RequestParser.request_queryParams`: Query parameters
 - `RequestParser.request_fragment`: URL fragment
 - `RequestParser.request_httpVersion`: HTTP version
@@ -58,7 +57,7 @@ _Provides properties to access details of the current HTTP Request. Use these at
 - `RequestParser.request_body`: Request body (string or parsed object)
 
 ---
-### ([TP_HTTP_RESPONSE_PARSER](https://pypi.org/project/TP-HTTP-Request-Response-Parser/)) ResponseParser
+### ([TP_HTTP_RESPONSE_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_response_parser)) ResponseParser
 _Provides properties to access details of the current HTTP Response. Use these attributes to extract status code, headers, cookies, body, etc. for analysis, transformation, or validation in your rules_
 - `ResponseParser.response_httpVersion`: HTTP version
 - `ResponseParser.response_statusCode`: Status code
@@ -94,15 +93,15 @@ _A variable used in loops, holding the current item being iterated in a rule_
 
 ---
 ## Built-in Modules/ Functions
-### TP_HTTP_REQUEST_PARSER module
+### [TP_HTTP_REQUEST_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_request_parser) module
 _Module for parsing and manipulating HTTP request data_
 
 ---
-### TP_HTTP_RESPONSE_PARSER module
+### [TP_HTTP_RESPONSE_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_response_parser) module
 _Module for parsing and manipulating HTTP response data_
 
 ---
-### [jdks](https://json-duplicate-keys.readthedocs.io/en/latest/) library
+### [jdks](https://github.com/TPCyberSec/json-duplicate-keys) library
 
 ---
 ### re library
@@ -620,7 +619,8 @@ See the [examples](./example/) directory for more sample rules
 ---
 # 📝 CHANGELOG
 ### [TP-BCF vX.Y.Z](https://github.com/TPCyberSec/TP-BCF/tree/X.Y.Z)
-- [Fixed] Issue when installing dependencies
+- **Fixed**: Issue when installing dependencies
+- **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
 
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
 - Initial release of TP-BCF

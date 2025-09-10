@@ -2,6 +2,8 @@ import javax.crypto.Cipher as Cipher
 import javax.crypto.spec.SecretKeySpec as SecretKeySpec
 import javax.crypto.spec.IvParameterSpec as IvParameterSpec
 
+import base64
+
 class DESCipher:
 	"""
 	- algorithm: str // "DES/ECB/NoPadding", "DES/CBC/PKCS5Padding"
@@ -17,7 +19,7 @@ class DESCipher:
 	- PlainText: str
 	- SECRET_KEY: str // length of SECRET_KEY: 8
 	- IV: str // length of IV: 8 for CBC, CFB, OFB, GCM
-	- Return value: str
+	- Return value: base64 encode
 	"""
 	def encrypt(self, PlainText, SECRET_KEY, IV=None):
 		if self.provider != None:
@@ -31,11 +33,11 @@ class DESCipher:
 			instance.init(Cipher.ENCRYPT_MODE, SecretKeySpec(SECRET_KEY, "DES"), IvParameterSpec(IV))
 
 		CipherText = instance.doFinal(PlainText)
-		return CipherText.tostring()
+		return base64.b64encode(CipherText)
 
 
 	"""
-	- CipherText: str
+	- CipherText: base64 encode
 	- SECRET_KEY: str // length of SECRET_KEY: 8
 	- IV: str // length of IV: 8 for CBC, CFB, OFB, GCM
 	- Return value: str
@@ -51,5 +53,5 @@ class DESCipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, SecretKeySpec(SECRET_KEY, "DES"), IvParameterSpec(IV))
 
-		PlainText = instance.doFinal(CipherText)
+		PlainText = instance.doFinal(base64.b64decode(CipherText))
 		return  PlainText.tostring()
