@@ -204,7 +204,6 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_encReq.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_all_encReq_item = JCheckBoxMenuItem("All Tools")
-		self.menu_all_encReq_item.setSelected(True)
 		self.menu_all_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
 		self.menu_all_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
@@ -247,7 +246,9 @@ class MenuBar(Runnable, IExtensionStateListener):
 			self.menu_repeater_encReq_item,
 			self.menu_extender_encReq_item
 		]
-		for tool in encReq_items: tool.setSelected(True)
+		for tool in encReq_items:
+			if tool.getText() not in ["Proxy", "Extender"]:
+				tool.setSelected(True)
 
 		# Decrypt Response
 		self.menu_decRes = JMenu("Decrypt Response")
@@ -257,7 +258,6 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_decRes.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_all_decRes_item = JCheckBoxMenuItem("All Tools")
-		self.menu_all_decRes_item.setSelected(True)
 		self.menu_all_decRes_item.setForeground(Color(0, 128, 255)) # deep sky blue
 		self.menu_all_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
@@ -300,7 +300,9 @@ class MenuBar(Runnable, IExtensionStateListener):
 			self.menu_repeater_decRes_item,
 			self.menu_extender_decRes_item
 		]
-		for tool in decRes_items: tool.setSelected(True)
+		for tool in decRes_items:
+			if tool.getText() not in ["Proxy", "Extender"]:
+				tool.setSelected(True)
 
 		# Environment Variables
 		self.menu_envs = JMenu("Environment Variables")

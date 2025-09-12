@@ -627,6 +627,7 @@ See the [examples](./example/) directory for more sample rules
 - **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
 - **Fixed**: Security issue
 - **Add new**: Tool name (**fromTool**) sent the request
+- **Updated**: Set the default to disable intercepting request/response traffic from the `Proxy` and `Extender` tools
 
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
 - Initial release of TP-BCF
