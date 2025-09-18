@@ -622,7 +622,7 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
-### [TP-BCF dev](https://github.com/TPCyberSec/TP-BCF/tree/dev)
+### [TP-BCF v2025.9.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.9.18)
 - **Fixed**: Issue when installing dependencies
 - **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
 - **Fixed**: Security issue
