@@ -48,13 +48,13 @@ Once loaded successfully, you should see a new `TP-BCF` menu tab on the top menu
 ### ([TP_HTTP_REQUEST_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_request_parser)) RequestParser
 _Provides properties to access details of the current HTTP Request. Use these attributes to extract method, path, headers, cookies, body, etc. for analysis, condition checking, or data processing in your rules_
 - `RequestParser.request_method`: HTTP method (GET, POST, etc.)
-- `RequestParser.request_paths`: Request path parts
-- `RequestParser.request_queryParams`: Query parameters
+- `RequestParser.request_paths`: Request path parts as JSON_Duplicate_Keys object
+- `RequestParser.request_queryParams`: Query parameters as JSON_Duplicate_Keys object
 - `RequestParser.request_fragment`: URL fragment
 - `RequestParser.request_httpVersion`: HTTP version
-- `RequestParser.request_headers`: Dictionary of request headers
-- `RequestParser.request_cookies`: Dictionary of request cookies
-- `RequestParser.request_body`: Request body (string or parsed object)
+- `RequestParser.request_headers`: Request headers as JSON_Duplicate_Keys object
+- `RequestParser.request_cookies`: Request cookies as JSON_Duplicate_Keys object
+- `RequestParser.request_body`: Request body (string or parsed object) as JSON_Duplicate_Keys object
 
 ---
 ### ([TP_HTTP_RESPONSE_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_response_parser)) ResponseParser
@@ -62,9 +62,9 @@ _Provides properties to access details of the current HTTP Response. Use these a
 - `ResponseParser.response_httpVersion`: HTTP version
 - `ResponseParser.response_statusCode`: Status code
 - `ResponseParser.response_statusText`: Status text
-- `ResponseParser.response_headers`: Dictionary of response headers
-- `ResponseParser.response_cookies`: Dictionary of response cookies
-- `ResponseParser.response_body`: Response body (string or parsed object)
+- `ResponseParser.response_headers`: Response headers as JSON_Duplicate_Keys object
+- `ResponseParser.response_cookies`: Response cookies as JSON_Duplicate_Keys object
+- `ResponseParser.response_body`: Response body as JSON_Duplicate_Keys object
 
 ---
 ### (dict) envs
@@ -622,11 +622,14 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
+### [TP-BCF dev](https://github.com/TPCyberSec/TP-BCF/tree/dev)
+- **Added**: New menu item `Reload Refresh TARGETS Config` to manually reload all target configurations
+
 ### [TP-BCF v2025.9.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.9.18)
 - **Fixed**: Issue when installing dependencies
 - **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
 - **Fixed**: Security issue
-- **Add new**: Tool name (**fromTool**) sent the request
+- **Added**: New tool name (**fromTool**) sent the request
 - **Updated**: Set the default to disable intercepting request/response traffic from the `Proxy` and `Extender` tools
 
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
