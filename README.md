@@ -1079,7 +1079,7 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
-### [TP-BCF dev](https://github.com/TPCyberSec/TP-BCF/tree/dev)
+### [TP-BCF v2025.12.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.12.18)
 - **Added**: New field `ENDPOINT` to match specific endpoint or path in `ProcessMessage` rules
 - **Added**: New menu item `Reload Refresh TARGETS Config` to manually reload all target configurations
 
