@@ -76,7 +76,7 @@ from modules.Crypto.Hash.SHA512 import SHA512
 
 
 EXTENSION_NAME = "TP-BCF"
-EXTENSION_VERSION = "2025.9.18"
+EXTENSION_VERSION = "2025.12.18"
 TARGET = "tpcybersec.com"
 TEMP = dict()
 fromTool = None
@@ -113,15 +113,19 @@ for target_name in targets.getObject():
 			if JDKSObject:
 				if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
 				if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
 				if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
 				if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 
 				if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+
 				if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
 print("CipherTab", CipherTab)
@@ -320,6 +324,12 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_targets.setFont(Font("Monospaced", Font.BOLD, 12))
 		self.load_targets()
 
+		# Reload Refresh TARGETS Config
+		self.menu_ReloadRefresh = JMenuItem("Reload Refresh TARGETS Config")
+		self.menu_ReloadRefresh.setOpaque(True)
+		self.menu_ReloadRefresh.setBackground(Color(255, 255, 204)) # light yellow
+		self.menu_ReloadRefresh.setFont(Font("Monospaced", Font.BOLD, 12))
+
 		# Auto Refresh TARGETS Config
 		self.menu_AutoRefresh_item = JCheckBoxMenuItem("Auto Refresh TARGETS Config")
 		self.menu_AutoRefresh_item.setForeground(Color(70, 130, 180)) # steel blue
@@ -342,6 +352,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_button.addSeparator()
 		self.menu_button.addSeparator()
 		self.menu_button.add(self.menu_targets)
+		self.menu_button.addSeparator()
+		self.menu_button.add(self.menu_ReloadRefresh)
 		self.menu_button.addSeparator()
 		self.menu_button.add(self.menu_AutoRefresh_item)
 		self.menu_button.addSeparator()
@@ -367,6 +379,7 @@ class MenuBar(Runnable, IExtensionStateListener):
 		for item in decRes_items:
 			item.addActionListener(MenuBar.IndividualToolListener(self.menu_all_decRes_item, decRes_items))
 
+		self.menu_ReloadRefresh.addActionListener(lambda event: self.reload_all_targets())
 
 	def load_env_vars(self):
 		self.menu_envs.removeAll()
@@ -494,7 +507,6 @@ class MenuBar(Runnable, IExtensionStateListener):
 				remove_item.addActionListener(lambda event, n=target_name: self.remove_target(n))
 				parent_menu.add(remove_item)
 
-				
 				self.menu_targets.add(parent_menu)
 				self.menu_targets.addSeparator()
 				self.menu_targets.addSeparator()
@@ -507,6 +519,50 @@ class MenuBar(Runnable, IExtensionStateListener):
 		add_item.addActionListener(self.add_target)
 		self.menu_targets.add(add_item)
 		self.menu_targets.addSeparator()
+
+
+	def reload_all_targets(self, event=None):
+		try:
+			global ProcessMessage, CipherTab
+			# Clear current configs
+			ProcessMessage["Request"] = []
+			ProcessMessage["Response"] = []
+			CipherTab["EncryptRequest"] = []
+			CipherTab["DecryptRequest"] = []
+			CipherTab["EncryptResponse"] = []
+			CipherTab["DecryptResponse"] = []
+
+			# Rebuild from all selected (enabled) targets
+			for tfile in self.selected_targets:
+				JDKSObj = jdks.load(tfile, skipDuplicated=True, _isDebug_=True)
+				if JDKSObj:
+					if JDKSObj.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						ProcessMessage["Request"] += JDKSObj.get("ProcessMessage||Request")["value"]
+
+					if JDKSObj.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						ProcessMessage["Response"] += JDKSObj.get("ProcessMessage||Response")["value"]
+
+					if JDKSObj.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						CipherTab["EncryptRequest"] += JDKSObj.get("CipherTab||EncryptRequest")["value"]
+
+					if JDKSObj.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						CipherTab["DecryptRequest"] += JDKSObj.get("CipherTab||DecryptRequest")["value"]
+
+					if JDKSObj.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						CipherTab["EncryptResponse"] += JDKSObj.get("CipherTab||EncryptResponse")["value"]
+
+					if JDKSObj.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						CipherTab["DecryptResponse"] += JDKSObj.get("CipherTab||DecryptResponse")["value"]
+
+			JOptionPane.showMessageDialog(None, "Reloaded config for selected targets.", "TP-BCF", JOptionPane.INFORMATION_MESSAGE)
+			if self.menu_debug_mode_item.getState():
+				print("[TP-BCF] Reloaded config for selected targets")
+				print("ProcessMessage", ProcessMessage)
+				print("CipherTab", CipherTab)
+		except Exception as e:
+			JOptionPane.showMessageDialog(None, "Error reloading selected targets: {}".format(str(e)), "TP-BCF", JOptionPane.ERROR_MESSAGE)
+			if self.menu_debug_mode_item.getState():
+				print("[TP-BCF] Error reloading selected targets:", e)
 
 
 	def add_target(self, event):
@@ -618,10 +674,11 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 	
 
 	def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):
-		global ProcessMessage
+		global ProcessMessage, CipherTab
 
 		target = messageInfo.getHttpService().getHost() + ":" + str(messageInfo.getHttpService().getPort())
-		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
+		endpoint = self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
+		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + endpoint
 
 		if messageIsRequest:
 			if (self.config_menu.menu_all_encReq_item.getState() and toolFlag in [IBurpExtenderCallbacks.TOOL_SCANNER, IBurpExtenderCallbacks.TOOL_PROXY, IBurpExtenderCallbacks.TOOL_INTRUDER, IBurpExtenderCallbacks.TOOL_REPEATER, IBurpExtenderCallbacks.TOOL_EXTENDER]) \
@@ -690,6 +747,8 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								break
 
 						if not re.search(ProcessMessage["Request"][i]["TARGET"], target): match = False
+
+						if not re.search(ProcessMessage["Request"][i]["ENDPOINT"], endpoint): match = False
 
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
@@ -808,6 +867,8 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 
 						if not re.search(ProcessMessage["Response"][i]["TARGET"], target): match = False
 
+						if not re.search(ProcessMessage["Response"][i]["ENDPOINT"], endpoint): match = False
+
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
 								print("-"*128)
@@ -879,7 +940,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 
 
 	def isEnabled(self, content, isRequest):
-		global TARGET, CipherTab
+		global TARGET, ProcessMessage, CipherTab
 
 		match = False
 		if content:

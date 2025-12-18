@@ -15,7 +15,7 @@
 # ✨ Features
 - Intercepts and rewrites HTTP Request/ Response messages based on predefined configurations
 - Cipher Tab for manual Encryption/ Decryption operations
-- Supports built-in symmetric, asymmetric, and hash-based cryptography
+- Supports built-in symmetric, asymmetric, hash-based cryptography and Common utilities
 - Easily extendable via JSON configuration files
 - Auto-login configuration for each user (**_coming soon..._**)
 
@@ -48,13 +48,27 @@ Once loaded successfully, you should see a new `TP-BCF` menu tab on the top menu
 ### ([TP_HTTP_REQUEST_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_request_parser)) RequestParser
 _Provides properties to access details of the current HTTP Request. Use these attributes to extract method, path, headers, cookies, body, etc. for analysis, condition checking, or data processing in your rules_
 - `RequestParser.request_method`: HTTP method (GET, POST, etc.)
-- `RequestParser.request_paths`: Request path parts
-- `RequestParser.request_queryParams`: Query parameters
+- `RequestParser.request_paths`: Request path parts as JSON_Duplicate_Keys object
+- `RequestParser.request_queryParams`: Query parameters as JSON_Duplicate_Keys object
 - `RequestParser.request_fragment`: URL fragment
 - `RequestParser.request_httpVersion`: HTTP version
-- `RequestParser.request_headers`: Dictionary of request headers
-- `RequestParser.request_cookies`: Dictionary of request cookies
-- `RequestParser.request_body`: Request body (string or parsed object)
+- `RequestParser.request_headers`: Request headers as JSON_Duplicate_Keys object
+- `RequestParser.request_cookies`: Request cookies as JSON_Duplicate_Keys object
+- `RequestParser.request_body`: Request body (string or parsed object) as JSON_Duplicate_Keys object
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ### ([TP_HTTP_RESPONSE_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_response_parser)) ResponseParser
@@ -62,9 +76,23 @@ _Provides properties to access details of the current HTTP Response. Use these a
 - `ResponseParser.response_httpVersion`: HTTP version
 - `ResponseParser.response_statusCode`: Status code
 - `ResponseParser.response_statusText`: Status text
-- `ResponseParser.response_headers`: Dictionary of response headers
-- `ResponseParser.response_cookies`: Dictionary of response cookies
-- `ResponseParser.response_body`: Response body (string or parsed object)
+- `ResponseParser.response_headers`: Response headers as JSON_Duplicate_Keys object
+- `ResponseParser.response_cookies`: Response cookies as JSON_Duplicate_Keys object
+- `ResponseParser.response_body`: Response body as JSON_Duplicate_Keys object
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ### (dict) envs
@@ -77,42 +105,262 @@ envs['defaultSecretKey']
 envs['defaultIV']
 envs['defaultSalt']
 envs['defaultPassword']
+
+# Custom Environment Variables:
+env['your-custom-variable']
+...
 ```
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ### TEMP
 _A temporary dictionary for storing intermediate values or results during rule execution_
 
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
 ---
 ### fromTool
 _Define the tool name from which the request was sent. It is used in the Request/ Response configuration of ProcessMessage. The value of fromTool can be: Scanner, Proxy, Intruder, Repeater, Extender_
 
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+
 ---
 ### O
-_A list for storing temporary results of expressions or calculations in each processing step_
+_A list for storing temporary results of expressions or calculations in each processing step. Only used within the Index of the current DATA and cannot be shared with the Index of another DATA_
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ### LOOPDATA
-_A variable used in loops, holding the current item being iterated in a rule_
+_A variable used in loops, holding the current item being iterated in a rule. Only used within the Index of the current OUTPUT and cannot be shared with the Index of another OUTPUT_
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ## Built-in Modules/ Functions
 ### [TP_HTTP_REQUEST_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_request_parser) module
 _Module for parsing and manipulating HTTP request data_
 
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
 ---
 ### [TP_HTTP_RESPONSE_PARSER](https://github.com/TPCyberSec/TP-HTTP-Request-Response-Parser#tp_http_response_parser) module
 _Module for parsing and manipulating HTTP response data_
 
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
 ---
 ### [jdks](https://github.com/TPCyberSec/json-duplicate-keys) library
+_Flatten/ Unflatten and Load(s)/ Dump(s) JSON File/ Object with Duplicate Keys_
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 
 ---
 ### re library
 _Python's built-in regular expression library_
 
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
 ---
 ### Utils module
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
 #### Utils.timestamp(length :int) -> int
 ```
 Utils.timestamp(10)
@@ -197,7 +445,159 @@ Utils.UrlDecode('TP%20Cyber%20Security')
 ```
 
 ---
+### MFA_Generator
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
+#### MFA_Generator.TOTP(secretKey: str, digits=6: int, period=30: int) -> str
+_Generating the TOTP code_
+```
+MFA_Generator.TOTP("JBSWY3DPEHPK3PXP")
+# OUTPUT: '862642'
+```
+
+---
+#### MFA_Generator.HOTP(secretKey: str, counter: int, digits=6: int) -> str
+_Generating the HOTP code_
+```
+MFA_Generator.HOTP("JBSWY3DPEHPK3PXP", 1)
+# OUTPUT: '996554'
+```
+
+---
+### Nonce_Generator
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
+#### Nonce_Generator.WordPress_Nonce(nonce_action: str, WORDPRESS_NONCE_KEY: str, WORDPRESS_NONCE_SALT: str, user_id=0: int, wordpress_logged_in_COOKIE="": str, DAY_IN_SECONDS=24*60*60: int) -> str
+_Generating the WordPress Nonce_
+```
+action = "wp-rest"
+NONCE_KEY = "Y9(H0]_u8BA:^or^<^4>AM@EkgnAm`{Mpsq*H!Z-?8 OHe6ITmPY6kQSai)y3w{}"
+NONCE_SALT = "xV&%-Ji<,`Clp+|bqt9<c%JrGpq!EiMy///`z0+<D1F<E%H14mha9Csm<TH;~TfH"
+
+Nonce_Generator.WordPress_Nonce(nonce_action=action, WORDPRESS_NONCE_KEY=NONCE_KEY, WORDPRESS_NONCE_SALT=NONCE_SALT)
+# OUTPUT: `ac06630f78`
+```
+
+---
+### QR_Generator
+_(Un)parsing QR Code: VietQR (TAG 38), MoMo (TAG 38), VNPAYQR (TAG 26), KHQR\_Individual (TAG 29), KHQR\_Corporate (TAG 30), ThaiQR\_CREDIT\_TRANSFER (TAG 29), ThaiQR\_BILL\_PAYMENT (TAG 30)_
+```
+QR_String = "00020101021230340009nbcb@devb01090000001230204DEVB520459995303840540115802KH5912Coffee Klang6010Phnom Penh62300314Coffe Klang0010708A60086679917001316418876882756304CE7C"
+
+QRObj = QR_Generator.initQR("KHQR_Corporate").parse(QR_String)
+QRObj.dumps()
+# OUTPUT: {"PayloadFormatIndicator": "01", "PointOfInitiationMethod": "12", "MerchantAccountInformation": {"BakongAccountID": "nbcb@devb", "MerchantID": "000000123", "AcquiringBank": "DEVB"}, "MerchantCategoryCode": "5999", "TransactionCurrency": "840", "TransactionAmount": "1", "CountryCode": "KH", "MerchantName": "Coffee Klang", "MerchantCity": "Phnom Penh", "AdditionalDataFieldTemplate": {"StoreLabel": "Coffe Klang001", "TerminalLabel": "A6008667"}, "CRC": "CE7C", "Timestamp": {"timestamp": "1641887688275"}}
+
+QRObj.update("TransactionAmount", "1000")
+QR_Generator.initQR("KHQR_Corporate").unparse(QRObj)
+# OUTPUT: '00020101021230340009nbcb@devb01090000001230204DEVB520459995303840540410005802KH5912Coffee Klang6010Phnom Penh62300314Coffe Klang0010708A600866799170013164188768827563043ECD'
+```
+
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
 ### Crypto.Symmetric modules
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
 #### AESCipher(algorithm :str, provider :str=None).encrypt(PlainText :str, SECRET_KEY :str, IV :str=None, GCM_Tag :int=128) -> str
 ```
 AESCipher('AES/ECB/NoPadding').encrypt('TPCyberSec      ', 'TPCSTPCSTPCSTPCS')
@@ -281,6 +681,33 @@ DESCipher('DES/ECB/NoPadding').decrypt('D{UZ\x18Ck\xcc\x80\x10*p\x7f\t\x7f9', 'T
 
 ---
 ### Crypto.Asymmetric modules
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
 #### RSACipher(algorithm :str, provider :str=None).encrypt(PlainText :str, PublicKey :str=None, PrivateKey :str=None) -> str
 ```
 PublicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuTwspB6ubxVDBIb7IL7sSinHDmZLk/7RYzOWzVmLZo7dzBKiOmAbvFMMGRXFZ/37eThQ7VP31qe6MCH7PhtuP+KKOFpfgQc3O9umo78Qut4NGuCYNiuRrRx2jv1KESS+zIxllelx/JmEbtrME3boMZJ7W/y/SL8dfhYuGZYuqrGOe2ZRwekWkxAUJlAlHT/keDU8qU3oGDgVIn6Ck5MW0o8yBoMsm7o1LfvAGdt5jdxATXy1pzIi3Tr/bLVVkOPmaYrmRQ1McQLSekGA0+hn/MSMTIKRBA4JtSLaQ7YPZQPqwlvYm56958Lr8FPcQ7dz3KXWRY5wG+KSf+3vWnRZ3QIDAQAB-----END PUBLIC KEY-----'
@@ -325,6 +752,33 @@ RSACipher('SHA256withRSA').verify('TPCyberSec', '\xae\x9bYl\xcc\xf1is\xc7\xff8\x
 
 ---
 ### Crypto.Hash modules
+**Usage scope in the configuration file:**
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `CipherTab||EncryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+
+---
 #### CRC32().checksum(message :str) -> str
 ```
 CRC32().checksum('TPCyberSec')
@@ -522,6 +976,7 @@ SHA512().hexdigest('TPCyberSec')
     "Request": [
       {
         "TARGET": String,
+        "ENDPOINT": String,
         "PATTERN": [
           String,
           ...
@@ -558,6 +1013,7 @@ SHA512().hexdigest('TPCyberSec')
 ## How to Write a Rule
 Each rule in TP-BCF is defined in the JSON configuration file and consists of the following main components:
 - **TARGET**: A regex string to match the domain you want the rule to apply to
+- **ENDPOINT**: A regex string to match the specific endpoint or path you want the rule to apply to (ProcessMessage only)
 - **PATTERN**: A list of regex patterns to match specific content in the request or response
 - **DATA**: A list of processing steps. Each step can have:
   - **CONDITION**: (Optional) A Python expression. If true, the OUTPUT block will be executed
@@ -574,6 +1030,7 @@ Each rule in TP-BCF is defined in the JSON configuration file and consists of th
     "Request": [
       {
         "TARGET": "example.com",
+        "ENDPOINT": "",
         "PATTERN": ["\"token\""],
         "DATA": [
           {
@@ -622,11 +1079,15 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
+### [TP-BCF v2025.12.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.12.18)
+- **Added**: New field `ENDPOINT` to match specific endpoint or path in `ProcessMessage` rules
+- **Added**: New menu item `Reload Refresh TARGETS Config` to manually reload all target configurations
+
 ### [TP-BCF v2025.9.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.9.18)
 - **Fixed**: Issue when installing dependencies
 - **Updated**: Change the inputs and outputs of the encrypt/decrypt and signature/verify functions
 - **Fixed**: Security issue
-- **Add new**: Tool name (**fromTool**) sent the request
+- **Added**: New tool name (**fromTool**) sent the request
 - **Updated**: Set the default to disable intercepting request/response traffic from the `Proxy` and `Extender` tools
 
 ### [TP-BCF v2025.8.24](https://github.com/TPCyberSec/TP-BCF/tree/2025.8.24)
