@@ -5,6 +5,7 @@
 		"Response": [
 			{
 				"TARGET": "oast.fun",
+				"ENDPOINT": "",
 				"PATTERN": [
 					"\"aes_key\""
 				],

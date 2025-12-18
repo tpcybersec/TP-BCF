@@ -113,15 +113,19 @@ for target_name in targets.getObject():
 			if JDKSObject:
 				if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
 				if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
 				if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
 				if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 
 				if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+
 				if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
 print("CipherTab", CipherTab)
@@ -673,7 +677,8 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 		global ProcessMessage, CipherTab
 
 		target = messageInfo.getHttpService().getHost() + ":" + str(messageInfo.getHttpService().getPort())
-		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
+		endpoint = self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
+		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + endpoint
 
 		if messageIsRequest:
 			if (self.config_menu.menu_all_encReq_item.getState() and toolFlag in [IBurpExtenderCallbacks.TOOL_SCANNER, IBurpExtenderCallbacks.TOOL_PROXY, IBurpExtenderCallbacks.TOOL_INTRUDER, IBurpExtenderCallbacks.TOOL_REPEATER, IBurpExtenderCallbacks.TOOL_EXTENDER]) \
@@ -742,6 +747,8 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								break
 
 						if not re.search(ProcessMessage["Request"][i]["TARGET"], target): match = False
+
+						if not re.search(ProcessMessage["Request"][i]["ENDPOINT"], endpoint): match = False
 
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
@@ -859,6 +866,8 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								break
 
 						if not re.search(ProcessMessage["Response"][i]["TARGET"], target): match = False
+
+						if not re.search(ProcessMessage["Response"][i]["ENDPOINT"], endpoint): match = False
 
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
