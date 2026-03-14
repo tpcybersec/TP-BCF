@@ -76,7 +76,7 @@ from modules.Crypto.Hash.SHA512 import SHA512
 
 
 EXTENSION_NAME = "TP-BCF"
-EXTENSION_VERSION = "2025.12.18"
+EXTENSION_VERSION = "2026.3.15"
 TARGET = "tpcybersec.com"
 TEMP = dict()
 fromTool = None

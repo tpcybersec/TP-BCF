@@ -17,7 +17,6 @@
 - Cipher Tab for manual Encryption/ Decryption operations
 - Supports built-in symmetric, asymmetric, hash-based cryptography and Common utilities
 - Easily extendable via JSON configuration files
-- Auto-login configuration for each user (**_coming soon..._**)
 
 ---
 # 🛠️ Installation
@@ -96,7 +95,7 @@ _Provides properties to access details of the current HTTP Response. Use these a
 
 ---
 ### (dict) envs
-_A dictionary containing default environment variables such as keys, IV, salt, and password. Use these for cryptographic operations or as parameters in your rules_
+_A dictionary containing default environment variables such as keys, IV, salt, and password. Use these for cryptographic operations or as parameters in your rules. You can add new custom environment variables through the MenuBar "**Environment Variables > ( + ) Add New Variable...**"._
 ```
 # Default environment variables
 envs['defaultPublicKey']
@@ -601,34 +600,34 @@ QR_Generator.initQR("KHQR_Corporate").unparse(QRObj)
 #### AESCipher(algorithm :str, provider :str=None).encrypt(PlainText :str, SECRET_KEY :str, IV :str=None, GCM_Tag :int=128) -> str
 ```
 AESCipher('AES/ECB/NoPadding').encrypt('TPCyberSec      ', 'TPCSTPCSTPCSTPCS')
-# OUTPUT: '\x04M\\H\x07\x06\x14\xfe\xc0\xddN\x8aX\x18\r\xf8'
+# OUTPUT: 'BE1cSAcGFP7A3U6KWBgN+A=='
 
 AESCipher('AES/ECB/PKCS5Padding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS')
-# OUTPUT: 'oD\x19)K\xb2\xe7\x10\xe4\x86uc\xc3\xa7\x08\x9e'
+# OUTPUT: 'b0QZKUuy5xDkhnVjw6cIng=='
 
 AESCipher('AES/CBC/NoPadding').encrypt('TPCyberSec      ', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: '\xab\r\x16\x98L\x9a~\xe3\x8d~n\xb6\xb7\xb3cV'
+# OUTPUT: 'qw0WmEyafuONfm62t7NjVg=='
 
 AESCipher('AES/CBC/PKCS5Padding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 'X\xe1\x08d\xd1\xba\x1f\xeb\x00M\xfb\xeb\x8e`\x16q'
+# OUTPUT: 'WOEIZNG6H+sATfvrjmAWcQ=='
 
 AESCipher('AES/CFB/NoPadding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 't\xe6C\xa7\xffJ\xa8Y\x91\xb4'
+# OUTPUT: 'dOZDp/9KqFmRtA=='
 
 AESCipher('AES/CFB/PKCS5Padding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 't\xe6C\xa7\xffJ\xa8Y\x91\xb4\x17\xea\xba(\xf5\xbd'
+# OUTPUT: 'dOZDp/9KqFmRtBfquij1vQ=='
 
 AESCipher('AES/OFB/NoPadding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 't\xe6C\xa7\xffJ\xa8Y\x91\xb4'
+# OUTPUT: 'dOZDp/9KqFmRtA=='
 
 AESCipher('AES/OFB/PKCS5Padding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 't\xe6C\xa7\xffJ\xa8Y\x91\xb4\x17\xea\xba(\xf5\xbd'
+# OUTPUT: 'dOZDp/9KqFmRtBfquij1vQ=='
 
 AESCipher('AES/GCM/NoPadding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: "{R6'\xba\x93\x98\xa5\x05\xb3!%\xc3\xb6>\x8d\t\x1b\x01\xbb\xb2\x86\xfe \x8ab"
+# OUTPUT: 'e1I2J7qTmKUFsyElw7Y+jQkbAbuyhv4gimI='
 
 AESCipher('AES/CTR/NoPadding').encrypt('TPCyberSec', 'TPCSTPCSTPCSTPCS', '0123456789012345')
-# OUTPUT: 't\xe6C\xa7\xffJ\xa8Y\x91\xb4'
+# OUTPUT: 'dOZDp/9KqFmRtA=='
 ```
 
 ---
@@ -669,7 +668,7 @@ AESCipher('AES/CTR/NoPadding').decrypt('t\xe6C\xa7\xffJ\xa8Y\x91\xb4', 'TPCSTPCS
 #### DESCipher(algorithm :str, provider :str=None).encrypt(PlainText :str, SECRET_KEY :str, IV :str=None) -> str
 ```
 DESCipher('DES/ECB/NoPadding').encrypt('TPCyberSec      ', 'TPCSTPCS', '01234567')
-# OUTPUT: 'D{UZ\x18Ck\xcc\x80\x10*p\x7f\t\x7f9'
+# OUTPUT: 'RHtVWhhDa8yAECpwfwl/OQ=='
 ```
 
 ---
@@ -714,13 +713,16 @@ PublicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCA
 PrivateKey = '-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5PCykHq5vFUMEhvsgvuxKKccOZkuT/tFjM5bNWYtmjt3MEqI6YBu8UwwZFcVn/ft5OFDtU/fWp7owIfs+G24/4oo4Wl+BBzc726ajvxC63g0a4Jg2K5GtHHaO/UoRJL7MjGWV6XH8mYRu2swTdugxkntb/L9Ivx1+Fi4Zli6qsY57ZlHB6RaTEBQmUCUdP+R4NTypTegYOBUifoKTkxbSjzIGgyybujUt+8AZ23mN3EBNfLWnMiLdOv9stVWQ4+ZpiuZFDUxxAtJ6QYDT6Gf8xIxMgpEEDgm1ItpDtg9lA+rCW9ibnr3nwuvwU9xDt3PcpdZFjnAb4pJ/7e9adFndAgMBAAECggEAAQJP5/D22EoQXGTz10DS/rBtkimCfeLkdxrf1myHct6SXLs5QQInBIabSUOyGJfsl8NzxWcwsW2meP6mZLc3iYeNYzMy0/wbE+tlY/z1dV8iSSQyEBF6sKu4BZ1hmuhNVcXqA8AKy+p2Kzhr5is+po56t4yP6jCIU5iBVchYprtggIeLUDAKIGterKEYxJt/N8pdJ0oGhx4cNxcRBDylqdm0HJphyP19BtBOsFtdT9cN6khNpsWGl7UirvlI8eoJxfkXzSgRLn0XoZhl1gDKAD9XCWnII9nzZyINUY1ICG2fISMMGGCNs9YmaY0wzMkhNvty8fPoWH+XrvNyomxIQQKBgQDiMQqPsRYZEw51CsGyyJFALHUfCxsLv6lXeFgCzBY74rksF4CrrNR1rcrvbMe06P54el+dtGevnpb+C1x/iFUkncGW6hNZii/dpKlxUvFTnYYWAITOiOJltDliFlXt7jCZEkGO9WcYRmTibve3pgjxB79MxEo4bJQCRSHTd6ZaLQKBgQDRpWUxaA5IdwuX7/pxG9ekFvxkJCpjDj14rkA832SLs1Zoq/d4D6/0WTp+c6wHL7fzU1DFbgCwB560ktlAvI77J6tapl1hps6RYh9H3bz+Hb6d6eFlhdyUKuTX1XXw6RcK3pYtYOltavl3bwAal/7TEKjrdS59qwx2BlsbQvQ8cQKBgQCHjjRyIQLJTC5h3mxvJNxHxVz7mcA/rkFidnDoXD8G7L1ku0EVoaJCVEFGc77LoMbAlTYwYSmyiiybW1u34pCEPTcDpoyqILLG9iPGEpsmLUVqci0lScvEf9nT+ubMjO77DYHUlyWN2sIjIbW7jfnV2XrAGvMQFaIuKhg3j4FWkQKBgQCYfp2QBae2EFnviBD864q9AjdOxHvMl9QhD2cMoFZrw+SLuOMGgyqzK6B/0LYGeDBvH2B2a+C2KqTHprW/ACllCWL8Sl1MpeBGIkCsrt9FXO+FwFVC2s8rO9RAJzZmKbaoImbM1VyWSaTyulwx+/PRJaIpu5A4uw4SX+cvelFcEQKBgHz2GicI/2cgYlRaeeR8tDSrfVNkhkF1qQZpC3GlTLMjmzZQzLXkjxvYRjNfSJaTZ9CMlaD1PFnqu7Uk9KhUwkClGnSsvFBO2MrRh6P32XS5eDVoP7jZ1pk5/dvuB1RSJqLT63FRaBi8XPSPeT/9po9lCfipK2tlNnggFMPZf3qQ-----END PRIVATE KEY-----'
 
 RSACipher('RSA/ECB/PKCS1Padding').encrypt('TPCyberSec', PublicKey=PublicKey)
-# OUTPUT: '\xb4\xb1\xbe\xaaS\xec\xba\xaa.\x18lUt\xb3`\x0b\xc7\x8b>\xe6\x0fVE\x82\t\xa6\xd7o8\xc5\xfauUv\xb1\x8d\xfa6C!\xf3\x93Rv\x9db\t\xdf\x1a\xb1%E!|\x00\xef\x08\x0c\xc2\xb1W:\x0c\x97k\xd28\xddZ\xe8\x18h\x7f\xed\x98h?;\xb3\x0e\xd6\x83\x11\xa7\t\xf0d\x7f]\xd5\xd3&\x98\x9b\x8f+\xbc\x9b{"6\xdd\xcc\xec\xfc1\xceR\xb3\xfa\xcaW\x03\x8f\x0f\x98\xe9\xeb\xad\x1b\x16a\x1b\\\x84\xd0\xe7! 8L\xba\xb08T\xb7\x87\xbd\xb4G\xad\t\xa6\xb6J\xfd\xef6Z\xbc4+[\xe3\xb7\xef_\xe4\xc25A*\x16a\x92\x10\xe9i2B !\xae_}\x1f\x05\x80W\xefS\x85\xe6]\x1f \x962J3\x1f\xdc\x91\xa7\xd5A{\x11\xa9\xef!\xd8=\x8e\xf29\x93\xed\xa7-\x93o\xff\x1bB\xb0\xd8\'u\x13\x1e=\x98\x14\x99\xcb\xcf\xf2\x18y+4\x00/L\xcc\xf9\xf6\\\x02\xe5\x87\xc1\xee\xd8\xd8\xcb\xb8`|z\x0c\x05\xa5Hx'
+# OUTPUT: 'AN3W2xqBkr87cl5lgw11HSgRXFJMoBlsNtXvRZHEGezrQVZrI6vp5lJdt0ZrAvwRqKYmw5jQHP1t55aCtT0erTNDbax++DThL64LfVYHmjwnC+/hEyv9S4S0W5UZd/8RAqP0LBWXYe5jp5fQu0TlUlrfBlhXy5ngs2Exmiz/5ggvb9dmVVs/IsXy8h2nNFC5JMqixX9w9wrvU3tzkjuP9PwIpPAAraH+SNavV8WbhuDMfmV5YVQABr5G5H0UW1pyAHk+hUhnE++nN6TAgxaP+nNu9fheBEku15oCF8sN4VpnqZonynau4I43QfWnLDByZLaEbqFc4Qh2cDKaojHYpg=='
 
 RSACipher('RSA/ECB/PKCS1Padding').encrypt('TPCyberSec', PrivateKey=PrivateKey)
-# OUTPUT: '@|Y"\x8eaF{\x0c\x9ehY%\xa9X\x10d{\x01\xae\xc8\x1d;I\xfc>\x19\xb1\x16\x88V\x06\'S\x01\xc3\x18S/\\\xa0\x0f\xbd\xaf\xfe\xf7\x1a\xaa\x927J2\xb2\xc7L\x1f\xc2\xf2@\xb1\xa0\x11?\xf6#\xfb\x17\xb1@~\x07{\x85\xc9\xee\xe2b\xf7}\xb7Ub\x07/S#\x8f\'\x01qI$\x91\x97\x9bp\x8a\xa1\xaf\xfc\xc5\xe7\xb3\xd8\xec\x1b\xed*\x9b\xe5\xb8\x07\x14gf\xef\x1a\xe0\x9b\x9ft\x81\x19\xff\xc4&\xb7\xa3A\xd27\xbd\x95>>\xfe\xda\x80u\xb8\xb0\xb9\x84\xfe\xd0\xc2\x06N\x8e\x0c\xb0k\x13\x91\xb9\x8c\xcb\xde{\x0b\xbd\x85A\xado\xd8\xd4\x18i+\x05I\x07\xa0\xa6\x04]\x14>\x15I\xf24h\xd2kB\xcd\xbck\xf8\xf8lZ\xed\xc3=\x95\xb4\x8a\x96\xf9\xb5\xad>&\xff\xc2\x88\xf6\x156\x96\x80~\xf6\x1e\x9a\x13\x9f\x1c\x0fn\xdc.\xa2rJ\x88\xb5\xf31(\x82\xa2\xbc\x14\xa5\xed\x13\x03\xe8\xd9\xda\xc0\x15\x1e\x90\xe4~\xd6\xee\xfb\xc2\x1a\x8c'
+# OUTPUT: 'QHxZIo5hRnsMnmhZJalYEGR7Aa7IHTtJ/D4ZsRaIVgYnUwHDGFMvXKAPva/+9xqqkjdKMrLHTB/C8kCxoBE/9iP7F7FAfgd7hcnu4mL3fbdVYgcvUyOPJwFxSSSRl5twiqGv/MXns9jsG+0qm+W4BxRnZu8a4JufdIEZ/8Qmt6NB0je9lT4+/tqAdbiwuYT+0MIGTo4MsGsTkbmMy957C72FQa1v2NQYaSsFSQegpgRdFD4VSfI0aNJrQs28a/j4bFrtwz2VtIqW+bWtPib/woj2FTaWgH72HpoTnxwPbtwuonJKiLXzMSiCorwUpe0TA+jZ2sAVHpDkftbu+8IajA=='
 
 RSACipher('RSA/ECB/NoPadding').encrypt('TPCyberSec', PublicKey=PublicKey)
+# OUTPUT: 'f48TeHLdtxuaH0EvozopEciNK0E5hsHAFqVeVSO1mc+KHEBNUvSzJAnvOVz2YRgXtdCIrcGjK9wUOThWzgE947t13mlHspvncJTrmm+CLX0tJMY8EGVZR8312soiNS8oOKBG4GmrVsKuAo46KTyDtL0SPeupr8VeUhtXdR+YtA252PJSrDWDM9iak027yL+OIqGjY8vZbDG9Str2bgKjuJZEYMQqZ31tXpRPrgObEzp2z1NidDBINgA3BQXI4k59wtKJben8jkz0i8gww2mAOXYRpvoIwgQXhQJKHsb5cmfgHNsiMQicS+bZwCAT+ETypiVCVUe0EYWvKE7h+mtd0A=='
+
 RSACipher('RSA/ECB/OAEPPadding').encrypt('TPCyberSec', PublicKey=PublicKey, OAEPHashAlg="SHA-256", MGFHashAlg="SHA-256")
+# OUTPUT: 'hOCSSak5pnd8oBysvO48GQC3ZP3UrySsVa+o38p2iWRU5LQKphD80bmtqW2DUHa9G1DRZzuP4w+RpZYE61jhG59PFKoeVF1pKZSOTVc0uk9D2GK35KyRCOf1xhhDCK6NVrPo2YkdfdVdbTzDhrujt3N7d3gCBKgGPYVGXU4LkepFpc8IvEheNejQ3FyrE36lNDIAoE0z15uRtWWerNrHP8dshIQ7h/mUaj6oy3uuVjvXFMRzpVetl3gNC33C+qbZi3xJCYeFawVuthy6QLiKfJT3aFtZjsyPDZm+M6XXUi85i8jeeyLXMIwnF0rulDrCgt4pJmB6wGI1jMnTVCyu9w=='
 ```
 
 ---
@@ -740,7 +742,7 @@ RSACipher('RSA/ECB/PKCS1Padding').decrypt('@|Y"\x8eaF{\x0c\x9ehY%\xa9X\x10d{\x01
 #### RSACipher(algorithm :str, provider :str=None).signature(message :str, PrivateKey :str) -> str
 ```
 RSACipher('SHA256withRSA').signature('TPCyberSec', '-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5PCykHq5vFUMEhvsgvuxKKccOZkuT/tFjM5bNWYtmjt3MEqI6YBu8UwwZFcVn/ft5OFDtU/fWp7owIfs+G24/4oo4Wl+BBzc726ajvxC63g0a4Jg2K5GtHHaO/UoRJL7MjGWV6XH8mYRu2swTdugxkntb/L9Ivx1+Fi4Zli6qsY57ZlHB6RaTEBQmUCUdP+R4NTypTegYOBUifoKTkxbSjzIGgyybujUt+8AZ23mN3EBNfLWnMiLdOv9stVWQ4+ZpiuZFDUxxAtJ6QYDT6Gf8xIxMgpEEDgm1ItpDtg9lA+rCW9ibnr3nwuvwU9xDt3PcpdZFjnAb4pJ/7e9adFndAgMBAAECggEAAQJP5/D22EoQXGTz10DS/rBtkimCfeLkdxrf1myHct6SXLs5QQInBIabSUOyGJfsl8NzxWcwsW2meP6mZLc3iYeNYzMy0/wbE+tlY/z1dV8iSSQyEBF6sKu4BZ1hmuhNVcXqA8AKy+p2Kzhr5is+po56t4yP6jCIU5iBVchYprtggIeLUDAKIGterKEYxJt/N8pdJ0oGhx4cNxcRBDylqdm0HJphyP19BtBOsFtdT9cN6khNpsWGl7UirvlI8eoJxfkXzSgRLn0XoZhl1gDKAD9XCWnII9nzZyINUY1ICG2fISMMGGCNs9YmaY0wzMkhNvty8fPoWH+XrvNyomxIQQKBgQDiMQqPsRYZEw51CsGyyJFALHUfCxsLv6lXeFgCzBY74rksF4CrrNR1rcrvbMe06P54el+dtGevnpb+C1x/iFUkncGW6hNZii/dpKlxUvFTnYYWAITOiOJltDliFlXt7jCZEkGO9WcYRmTibve3pgjxB79MxEo4bJQCRSHTd6ZaLQKBgQDRpWUxaA5IdwuX7/pxG9ekFvxkJCpjDj14rkA832SLs1Zoq/d4D6/0WTp+c6wHL7fzU1DFbgCwB560ktlAvI77J6tapl1hps6RYh9H3bz+Hb6d6eFlhdyUKuTX1XXw6RcK3pYtYOltavl3bwAal/7TEKjrdS59qwx2BlsbQvQ8cQKBgQCHjjRyIQLJTC5h3mxvJNxHxVz7mcA/rkFidnDoXD8G7L1ku0EVoaJCVEFGc77LoMbAlTYwYSmyiiybW1u34pCEPTcDpoyqILLG9iPGEpsmLUVqci0lScvEf9nT+ubMjO77DYHUlyWN2sIjIbW7jfnV2XrAGvMQFaIuKhg3j4FWkQKBgQCYfp2QBae2EFnviBD864q9AjdOxHvMl9QhD2cMoFZrw+SLuOMGgyqzK6B/0LYGeDBvH2B2a+C2KqTHprW/ACllCWL8Sl1MpeBGIkCsrt9FXO+FwFVC2s8rO9RAJzZmKbaoImbM1VyWSaTyulwx+/PRJaIpu5A4uw4SX+cvelFcEQKBgHz2GicI/2cgYlRaeeR8tDSrfVNkhkF1qQZpC3GlTLMjmzZQzLXkjxvYRjNfSJaTZ9CMlaD1PFnqu7Uk9KhUwkClGnSsvFBO2MrRh6P32XS5eDVoP7jZ1pk5/dvuB1RSJqLT63FRaBi8XPSPeT/9po9lCfipK2tlNnggFMPZf3qQ-----END PRIVATE KEY-----')
-# OUTPUT: '\xae\x9bYl\xcc\xf1is\xc7\xff8\xf4\x9d\x97C%\xd1\xd5\x8b8p\x98V\xc1\xd3Z\xdb\xec\x05`\xdb\xa3\x15>W\t\xd1&<\xffc\x0b)7\x8e\xc3\xaf\x92\xe3\x83JV\x80J\x14\n\x03\xa5Y\xd0\xf6\xeefx\x1dG\x14\xe8q{\x1b\xe8\x15\xdc!S\x96\xf4\x1bdC)|o\x12\xe2\x9fW\xfc\x03\xd2\xf7)\x10\x02\xe7\x96@\n0\xc7\x06\xb9\x98l\x1d\xfe\xdaD\xf4?p\x13\xc8H\xffV\xbe\x0b\x07\x85\x92\x089\xab\xf4\xa5} {\xf2\xd7+~\x95\xb9\x14^\xba\xe5K0\xf1\x7f\x94c\xdd%\xe0L\x9f\xa2[)\x9c\xe1NE\xd7G\x9e\xb5\x96\xf5a\x92s,8W\x80.Zm\xf3\x04\x89\xfc\x0e\xe3\x81\xa2\xf3\x01\xd95\x1d\xfa\xba\xd4\xc3\x05f\xbet\xc6\xb8\xb2\xe3\x04\xbb\x11\n\xb4\xce\xbe\xf1\xb8\xff\xf2\x9a\x06;\xba\x99o\x13\x96\x98\x1d\xb5\xb0!\xce\x18S\x16\x94r\xd2\xa1\x82\xd8\xeaS\xe3R\xfe-\x89z\xd9\xcfVfh\xcaa\x7f`\xaa\x14o(g!'
+# OUTPUT: 'rptZbMzxaXPH/zj0nZdDJdHVizhwmFbB01rb7AVg26MVPlcJ0SY8/2MLKTeOw6+S44NKVoBKFAoDpVnQ9u5meB1HFOhxexvoFdwhU5b0G2RDKXxvEuKfV/wD0vcpEALnlkAKMMcGuZhsHf7aRPQ/cBPISP9WvgsHhZIIOav0pX0ge/LXK36VuRReuuVLMPF/lGPdJeBMn6JbKZzhTkXXR561lvVhknMsOFeALlpt8wSJ/A7jgaLzAdk1Hfq61MMFZr50xriy4wS7EQq0zr7xuP/ymgY7uplvE5aYHbWwIc4YUxaUctKhgtjqU+NS/i2JetnPVmZoymF/YKoUbyhnIQ=='
 ```
 
 ---
@@ -972,41 +974,59 @@ SHA512().hexdigest('TPCyberSec')
 ## Rule Structure
 ```json
 {
-  "ProcessMessage": {
-    "Request": [
-      {
-        "TARGET": String,
-        "ENDPOINT": String,
-        "PATTERN": [
-          String,
-          ...
-        ],
-        "DATA": [
-          {
-            "CONDITION": String,
-            "OUTPUT": [
-              {
-                "LOOPVAR": String,
-                "CONDITION": String,
-                "exec_func": Boolean,
-                "ExprStmt": String
-              },
-              ...
-            ]
-          },
-          ...
-        ]
-      },
-      ...
-    ],
-    "Response": [ ... ]
-  },
-  "CipherTab": {
-    "EncryptRequest": [ ... ],
-    "DecryptRequest": [ ... ],
-    "EncryptResponse": [ ... ],
-    "DecryptResponse": [ ... ]
-  }
+	"ProcessMessage": {
+		"Request": [
+			{
+				"TARGET": StringRegex,
+				"ENDPOINT": StringRegex,
+				"PATTERN": List<StringRegex>,
+				"DATA": [
+					{
+						"CONDITION": StringExpr,
+						"OUTPUT": [
+							{
+								"LOOPVAR": String,
+								"CONDITION": StringExpr,
+								"exec_func": Boolean,
+								"ExprStmt": StringExpr
+							},
+							...
+						]
+					},
+					...
+				]
+			},
+			...
+		],
+		"Response": [ ... ]
+	},
+	"CipherTab": {
+		"EncryptRequest": [
+			{
+				"TARGET": StringRegex,
+				"PATTERN": List<StringRegex>,
+				"DATA": [
+					{
+						"CONDITION": StringExpr,
+						"OUTPUT": [
+							{
+								"LOOPVAR": String,
+								"CONDITION": StringExpr,
+								"exec_func": Boolean,
+								"ExprStmt": StringExpr
+							},
+							...
+						]
+					},
+					...
+				]
+			},
+			...
+		],
+		"DecryptRequest": [ ... ],
+		"EncryptResponse": [ ... ],
+		"DecryptResponse": [ ... ]
+	}
 }
 ```
 
@@ -1079,6 +1099,9 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
+### [TP-BCF v2026.3.15](https://github.com/TPCyberSec/TP-BCF/tree/2026.3.15)
+- **Updated**: Encryption/ Decryption and Signature/ Verify functions accept raw data as input. Encryption and Signature return Base64-encoded data, while Decryption returns raw data, allowing more flexible use cases
+
 ### [TP-BCF v2025.12.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.12.18)
 - **Added**: New field `ENDPOINT` to match specific endpoint or path in `ProcessMessage` rules
 - **Added**: New menu item `Reload Refresh TARGETS Config` to manually reload all target configurations
