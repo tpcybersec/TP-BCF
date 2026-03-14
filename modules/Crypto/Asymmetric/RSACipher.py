@@ -39,7 +39,7 @@ class RSACipher:
 	- PlainText: str
 	- PublicKey: str
 	- PrivateKey: str
-	- Return value: base64 encode
+	- Return value: str (Base64-encoded)
 	"""
 	def encrypt(self, PlainText, PublicKey=None, PrivateKey=None, OAEPHashAlg=None, MGFHashAlg=None):
 		if self.provider != None:
@@ -64,7 +64,7 @@ class RSACipher:
 
 
 	"""
-	- CipherText: base64 encode
+	- CipherText: str
 	- PublicKey: str
 	- PrivateKey: str
 	- Return value: str
@@ -87,14 +87,14 @@ class RSACipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, decryptKey)
 
-		PlainText = instance.doFinal(base64.b64decode(CipherText))
+		PlainText = instance.doFinal(CipherText)
 		return  PlainText.tostring()
 
 
 	"""
 	- message: str
 	- PrivateKey: str
-	- Return value: base64 encode
+	- Return value: str (Base64-encoded)
 	"""
 	def signature(self, message, PrivateKey):
 		if self.provider != None:
@@ -109,7 +109,7 @@ class RSACipher:
 
 	"""
 	- message: str
-	- signedData: base64 encode
+	- signedData: str
 	- PublicKey: str
 	- Return value: boolean
 	"""
@@ -121,4 +121,4 @@ class RSACipher:
 
 		sign.initVerify(self.RSAPublicKey(PublicKey))
 		sign.update(message)
-		return sign.verify(base64.b64decode(signedData))
+		return sign.verify(signedData)

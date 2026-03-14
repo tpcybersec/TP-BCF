@@ -19,7 +19,7 @@ class DESCipher:
 	- PlainText: str
 	- SECRET_KEY: str // length of SECRET_KEY: 8
 	- IV: str // length of IV: 8 for CBC, CFB, OFB, GCM
-	- Return value: base64 encode
+	- Return value: str (Base64-encoded)
 	"""
 	def encrypt(self, PlainText, SECRET_KEY, IV=None):
 		if self.provider != None:
@@ -37,7 +37,7 @@ class DESCipher:
 
 
 	"""
-	- CipherText: base64 encode
+	- CipherText: str
 	- SECRET_KEY: str // length of SECRET_KEY: 8
 	- IV: str // length of IV: 8 for CBC, CFB, OFB, GCM
 	- Return value: str
@@ -53,5 +53,5 @@ class DESCipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, SecretKeySpec(SECRET_KEY, "DES"), IvParameterSpec(IV))
 
-		PlainText = instance.doFinal(base64.b64decode(CipherText))
+		PlainText = instance.doFinal(CipherText)
 		return  PlainText.tostring()

@@ -21,7 +21,7 @@ class AESCipher:
 	- SECRET_KEY: str // length of SECRET_KEY: 16, 24, 32
 	- IV: str // length of IV: 16 for CBC, CFB, OFB, GCM
 	- GCM_Tag: int // 128
-	- Return value: base64 encode
+	- Return value: str (Base64-encoded)
 	"""
 	def encrypt(self, PlainText, SECRET_KEY, IV=None, GCM_Tag=128):
 		if self.provider != None:
@@ -41,7 +41,7 @@ class AESCipher:
 
 
 	"""
-	- CipherText: base64 encode
+	- CipherText: str
 	- SECRET_KEY: str // length of SECRET_KEY: 16, 24, 32
 	- IV: str // length of IV: 16 for CBC, CFB, OFB, GCM
 	- GCM_Tag: int // 128
@@ -60,5 +60,5 @@ class AESCipher:
 		else:
 			instance.init(Cipher.DECRYPT_MODE, SecretKeySpec(SECRET_KEY, "AES"), IvParameterSpec(IV))
 
-		PlainText = instance.doFinal(base64.b64decode(CipherText))
+		PlainText = instance.doFinal(CipherText)
 		return  PlainText.tostring()
