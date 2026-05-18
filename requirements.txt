@@ -1,2 +1,1 @@
-tp-http-request-response-parser>=2025.9.30
-tp-generator>=2025.10.7
+TP-HTTP-Request-Response-Parser>=2026.5.18

@@ -6,7 +6,7 @@
 !/SECURITY.md
 !/TP-BCF.py
 !/example
-!/example/Interactsh.json
+!/example/**
 !/assets
 !/assets/TP-BCF.png
 !/modules

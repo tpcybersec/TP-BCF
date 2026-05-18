@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from burp import IBurpExtender, IMessageEditorTabFactory, IHttpListener, IMessageEditorTab, IExtensionStateListener, IBurpExtenderCallbacks
+from burp import IBurpExtender, IMessageEditorTabFactory, IHttpListener, IMessageEditorTab, IExtensionStateListener, IBurpExtenderCallbacks, IProxyListener
 
 from java.lang import Runnable
 from javax.swing import SwingUtilities, JMenu, JCheckBoxMenuItem, JMenuItem, JFileChooser, UIManager, JOptionPane
@@ -20,41 +20,38 @@ if not os.path.exists(TPBCF_DIR):
 	print("[TP-BCF] Created directory: " + TPBCF_DIR)
 
 # Add the TP-BCF site-packages directory to the Python path
-import site
-
 install_dependencies = True
-if install_dependencies:
-	if os.path.exists(os.path.join(os.getcwd(), "requirements.txt")):
-		from java.lang import Runtime
-		import java.io as io
+import site
+if install_dependencies and os.path.exists(os.path.join(os.getcwd(), "requirements.txt")):
+	from java.lang import Runtime
+	from java.io import BufferedReader, InputStreamReader
 
-		try:
-			process = Runtime.getRuntime().exec(["python", "-m", "pip", "install", "-r", os.path.join(os.getcwd(), "requirements.txt"), "--target", os.path.join(TPBCF_DIR, "site-packages"), "--no-user", "--upgrade"])
+	try:
+		process = Runtime.getRuntime().exec(["python", "-m", "pip", "install", "-r", os.path.join(os.getcwd(), "requirements.txt"), "--target", os.path.join(TPBCF_DIR, "site-packages"), "--no-user", "--upgrade"])
 
-			# stdout
-			reader_out = io.BufferedReader(io.InputStreamReader(process.getInputStream()))
+		# stdout
+		reader_out = BufferedReader(InputStreamReader(process.getInputStream()))
+		line = reader_out.readLine()
+		while line is not None:
+			print(line)
 			line = reader_out.readLine()
-			while line is not None:
-				print(line)
-				line = reader_out.readLine()
 
-			# stderr
-			reader_err = io.BufferedReader(io.InputStreamReader(process.getErrorStream()))
+		# stderr
+		reader_err = BufferedReader(InputStreamReader(process.getErrorStream()))
+		line = reader_err.readLine()
+		while line is not None:
+			print(line)
 			line = reader_err.readLine()
-			while line is not None:
-				print(line)
-				line = reader_err.readLine()
-		except Exception as e:
-			print(e)
-
+	except Exception as e:
+		print(e)
 site.addsitedir(os.path.join(TPBCF_DIR, "site-packages"))
 
 import re
 from datetime import datetime
 import json_duplicate_keys as jdks
 from collections import OrderedDict
-from tp_http_request_response_parser import TP_HTTP_REQUEST_PARSER, TP_HTTP_RESPONSE_PARSER
-from tp_generator import Utils, MFA_Generator, Nonce_Generator, QR_Generator
+from TP_HTTP_Request_Response_Parser import TP_HTTP_REQUEST_PARSER, TP_HTTP_RESPONSE_PARSER
+from TP_Generator import Utils, MFA_Generator, Nonce_Generator, QR_Generator
 
 from modules.Crypto.Symmetric.AESCipher import AESCipher
 from modules.Crypto.Symmetric.DESCipher import DESCipher
@@ -76,19 +73,24 @@ from modules.Crypto.Hash.SHA512 import SHA512
 
 
 EXTENSION_NAME = "TP-BCF"
-EXTENSION_VERSION = "2026.3.15"
+EXTENSION_VERSION = "2026.5.18"
 TARGET = "tpcybersec.com"
 TEMP = dict()
 fromTool = None
 
-# Initialize CipherTab and ProcessMessage dictionaries
+# Initialize CipherTab, HttpMessage, and ProxyMessage dictionaries
 CipherTab = {
 	"EncryptRequest": [],
 	"DecryptRequest": [],
 	"EncryptResponse": [],
 	"DecryptResponse": []
 }
-ProcessMessage = {
+HttpMessage = {
+	"Request": [],
+	"Response": []
+}
+
+ProxyMessage = {
 	"Request": [],
 	"Response": []
 }
@@ -123,13 +125,20 @@ for target_name in targets.getObject():
 				if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 					CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 
-				if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-					ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+				if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+					HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
 
-				if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-					ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
+				if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+					HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
+
+				if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+					ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
+
+				if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+					ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
 print("CipherTab", CipherTab)
-print("ProcessMessage", ProcessMessage)
+print("HttpMessage", HttpMessage)
+print("ProxyMessage", ProxyMessage)
 
 # Default environment variables
 def default_envs():
@@ -523,10 +532,12 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 	def reload_all_targets(self, event=None):
 		try:
-			global ProcessMessage, CipherTab
+			global ProxyMessage, HttpMessage, CipherTab
 			# Clear current configs
-			ProcessMessage["Request"] = []
-			ProcessMessage["Response"] = []
+			ProxyMessage["Request"] = []
+			ProxyMessage["Response"] = []
+			HttpMessage["Request"] = []
+			HttpMessage["Response"] = []
 			CipherTab["EncryptRequest"] = []
 			CipherTab["DecryptRequest"] = []
 			CipherTab["EncryptResponse"] = []
@@ -536,11 +547,17 @@ class MenuBar(Runnable, IExtensionStateListener):
 			for tfile in self.selected_targets:
 				JDKSObj = jdks.load(tfile, skipDuplicated=True, _isDebug_=True)
 				if JDKSObj:
-					if JDKSObj.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-						ProcessMessage["Request"] += JDKSObj.get("ProcessMessage||Request")["value"]
+					if JDKSObj.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						ProxyMessage["Request"] += JDKSObj.get("ProxyMessage||Request")["value"]
 
-					if JDKSObj.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-						ProcessMessage["Response"] += JDKSObj.get("ProcessMessage||Response")["value"]
+					if JDKSObj.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						ProxyMessage["Response"] += JDKSObj.get("ProxyMessage||Response")["value"]
+
+					if JDKSObj.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						HttpMessage["Request"] += JDKSObj.get("HttpMessage||Request")["value"]
+
+					if JDKSObj.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+						HttpMessage["Response"] += JDKSObj.get("HttpMessage||Response")["value"]
 
 					if JDKSObj.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 						CipherTab["EncryptRequest"] += JDKSObj.get("CipherTab||EncryptRequest")["value"]
@@ -557,7 +574,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 			JOptionPane.showMessageDialog(None, "Reloaded config for selected targets.", "TP-BCF", JOptionPane.INFORMATION_MESSAGE)
 			if self.menu_debug_mode_item.getState():
 				print("[TP-BCF] Reloaded config for selected targets")
-				print("ProcessMessage", ProcessMessage)
+				print("ProxyMessage", ProxyMessage)
+				print("HttpMessage", HttpMessage)
 				print("CipherTab", CipherTab)
 		except Exception as e:
 			JOptionPane.showMessageDialog(None, "Error reloading selected targets: {}".format(str(e)), "TP-BCF", JOptionPane.ERROR_MESSAGE)
@@ -656,7 +674,7 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 
 
-class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
+class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener, IProxyListener):
 	def registerExtenderCallbacks(self, callbacks):
 		self._callbacks = callbacks
 
@@ -670,11 +688,275 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 
 		callbacks.registerMessageEditorTabFactory(self)
 
+		# register ourselves as a Proxy listener
+		callbacks.registerProxyListener(self)
+
+		# register ourselves as an HTTP listener
 		callbacks.registerHttpListener(self)
 	
 
+	def processProxyMessage(self, messageIsRequest, message):
+		global ProxyMessage, HttpMessage, CipherTab
+
+		messageInfo = message.getMessageInfo()
+		target = messageInfo.getHttpService().getHost() + ":" + str(messageInfo.getHttpService().getPort())
+		endpoint = self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
+		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + endpoint
+
+		if messageIsRequest:
+			oriRequest = messageInfo.getRequest()
+			newRequest = self._helpers.bytesToString(oriRequest)
+
+			try:
+				envs = jdks.load(ENV_FILE, skipDuplicated=True)
+				if not envs:
+					envs = jdks.JSON_DUPLICATE_KEYS({})
+				envs = envs.getObject()
+				envs.update(default_envs())
+
+				if self.config_menu.menu_AutoRefresh_item.getState():
+					ProxyMessage["Request"] = []
+					ProxyMessage["Response"] = []
+					HttpMessage["Request"] =  []
+					HttpMessage["Response"] =  []
+					CipherTab["EncryptRequest"] =  []
+					CipherTab["DecryptRequest"] =  []
+					CipherTab["EncryptResponse"] =  []
+					CipherTab["DecryptResponse"] =  []
+
+					for target_file in self.config_menu.selected_targets:
+						if self.config_menu.menu_debug_mode_item.getState():
+							print("[TP-BCF] " + target_file)
+						JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
+						if JDKSObject:
+							if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
+							
+							if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+							if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+							
+							if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
+
+							if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
+							if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
+							if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
+							if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
+
+					if self.config_menu.menu_debug_mode_item.getState():
+						print("ProxyMessage", ProxyMessage)
+						print("HttpMessage", HttpMessage)
+						print("CipherTab", CipherTab)
+
+
+				for i in range(len(ProxyMessage["Request"])):
+					match = True
+					for pattern in ProxyMessage["Request"][i]["PATTERN"]:
+						if not re.search(pattern, newRequest):
+							match = False
+							break
+
+					if not re.search(ProxyMessage["Request"][i]["TARGET"], target): match = False
+
+					if not re.search(ProxyMessage["Request"][i]["ENDPOINT"], endpoint): match = False
+
+					if match:
+						if self.config_menu.menu_debug_mode_item.getState():
+							print("-"*128)
+							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (processProxyMessage): "+url)
+
+						RequestParser = TP_HTTP_REQUEST_PARSER(newRequest, ordered_dict=True)
+						O = list()
+
+						local_vars = {
+							"envs": envs,
+							"RequestParser": RequestParser,
+							"O": O
+						}
+
+						for j in range(len(ProxyMessage["Request"][i]["DATA"])):
+							O.append("")
+
+							if len(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O}):
+								for output in ProxyMessage["Request"][i]["DATA"][j]["OUTPUT"]:
+									LOOPVAR = output["LOOPVAR"]
+									CONDITION = output["CONDITION"]
+									if len(LOOPVAR) > 0:
+										for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
+											if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
+												local_vars["LOOPDATA"] = LOOPDATA
+												if output["exec_func"]:
+													safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+													if self.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+												else:
+													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+													if self.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+													break
+									else:
+										if output["exec_func"]:
+											safe_exec(output["ExprStmt"], local_vars=local_vars)
+										else:
+											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+										if self.config_menu.menu_debug_mode_item.getState():
+											print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
+
+						newRequest = RequestParser.unparse(update_content_length=True)
+						break
+
+				newRequest = self._helpers.stringToBytes(newRequest)
+				messageInfo.setRequest(newRequest)
+			except Exception as e:
+				if self.config_menu.menu_debug_mode_item.getState():
+					print("[TP-BCF] processProxyMessage - Request:", e)
+				messageInfo.setRequest(oriRequest)
+		else:
+			oriResponse = messageInfo.getResponse()
+			newResponse = self._helpers.bytesToString(oriResponse)
+
+			try:
+				envs = jdks.load(ENV_FILE, skipDuplicated=True)
+				if not envs:
+					envs = jdks.JSON_DUPLICATE_KEYS({})
+				envs = envs.getObject()
+				envs.update(default_envs())
+
+				if self.config_menu.menu_AutoRefresh_item.getState():
+					ProxyMessage["Request"] =  []
+					ProxyMessage["Response"] =  []
+					HttpMessage["Request"] =  []
+					HttpMessage["Response"] =  []
+					CipherTab["EncryptRequest"] =  []
+					CipherTab["DecryptRequest"] =  []
+					CipherTab["EncryptResponse"] =  []
+					CipherTab["DecryptResponse"] =  []
+
+					for target_file in self.config_menu.selected_targets:
+						if self.config_menu.menu_debug_mode_item.getState():
+							print("[TP-BCF] " + target_file)
+						JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
+						if JDKSObject:
+							if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
+
+							if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+							if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+
+							if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
+
+							if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
+							if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
+							if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
+							if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+								CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
+
+					if self.config_menu.menu_debug_mode_item.getState():
+						print("ProxyMessage", ProxyMessage)
+						print("HttpMessage", HttpMessage)
+						print("CipherTab", CipherTab)
+
+
+				for i in range(len(ProxyMessage["Response"])):
+					match = True
+					for pattern in ProxyMessage["Response"][i]["PATTERN"]:
+						if not re.search(pattern, newResponse):
+							match = False
+							break
+
+					if not re.search(ProxyMessage["Response"][i]["TARGET"], target): match = False
+
+					if not re.search(ProxyMessage["Response"][i]["ENDPOINT"], endpoint): match = False
+
+					if match:
+						if self.config_menu.menu_debug_mode_item.getState():
+							print("-"*128)
+							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (processProxyMessage): "+url)
+
+						ResponseParser = TP_HTTP_RESPONSE_PARSER(newResponse, ordered_dict=True)
+						O = list()
+
+						local_vars = {
+							"envs": envs,
+							"ResponseParser": ResponseParser,
+							"O": O
+						}
+
+						for j in range(len(ProxyMessage["Response"][i]["DATA"])):
+							O.append("")
+
+							if len(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O}):
+								for output in ProxyMessage["Response"][i]["DATA"][j]["OUTPUT"]:
+									LOOPVAR = output["LOOPVAR"]
+									CONDITION = output["CONDITION"]
+									if len(LOOPVAR) > 0:
+										for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
+											if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
+												local_vars["LOOPDATA"] = LOOPDATA
+												if output["exec_func"]:
+													safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+													if self.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+												else:
+													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+													if self.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+													break
+									else:
+										if output["exec_func"]:
+											safe_exec(output["ExprStmt"], local_vars=local_vars)
+										else:
+											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+										if self.config_menu.menu_debug_mode_item.getState():
+											print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
+
+						newResponse = ResponseParser.unparse(update_content_length=True)
+						break
+
+				newResponse = self._helpers.stringToBytes(newResponse)
+				messageInfo.setResponse(newResponse)
+			except Exception as e:
+				if self.config_menu.menu_debug_mode_item.getState():
+					print("[TP-BCF] processProxyMessage - Response:", e)
+				messageInfo.setResponse(oriResponse)
+
+
 	def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):
-		global ProcessMessage, CipherTab
+		global ProxyMessage, HttpMessage, CipherTab
 
 		target = messageInfo.getHttpService().getHost() + ":" + str(messageInfo.getHttpService().getPort())
 		endpoint = self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()[0].split(" ")[1]
@@ -704,8 +986,10 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 					envs.update(default_envs())
 
 					if self.config_menu.menu_AutoRefresh_item.getState():
-						ProcessMessage["Request"] =  []
-						ProcessMessage["Response"] =  []
+						ProxyMessage["Request"] = []
+						ProxyMessage["Response"] = []
+						HttpMessage["Request"] =  []
+						HttpMessage["Response"] =  []
 						CipherTab["EncryptRequest"] =  []
 						CipherTab["DecryptRequest"] =  []
 						CipherTab["EncryptResponse"] =  []
@@ -716,11 +1000,17 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								print("[TP-BCF] " + target_file)
 							JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
 							if JDKSObject:
-								if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-									ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+								if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
 								
-								if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-									ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
+								if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+								if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+								
+								if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
 
 								if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 									CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
@@ -735,20 +1025,21 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 									CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 
 						if self.config_menu.menu_debug_mode_item.getState():
-							print("ProcessMessage", ProcessMessage)
+							print("ProxyMessage", ProxyMessage)
+							print("HttpMessage", HttpMessage)
 							print("CipherTab", CipherTab)
 
 
-					for i in range(len(ProcessMessage["Request"])):
+					for i in range(len(HttpMessage["Request"])):
 						match = True
-						for pattern in ProcessMessage["Request"][i]["PATTERN"]:
+						for pattern in HttpMessage["Request"][i]["PATTERN"]:
 							if not re.search(pattern, newRequest):
 								match = False
 								break
 
-						if not re.search(ProcessMessage["Request"][i]["TARGET"], target): match = False
+						if not re.search(HttpMessage["Request"][i]["TARGET"], target): match = False
 
-						if not re.search(ProcessMessage["Request"][i]["ENDPOINT"], endpoint): match = False
+						if not re.search(HttpMessage["Request"][i]["ENDPOINT"], endpoint): match = False
 
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
@@ -764,11 +1055,11 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								"O": O
 							}
 
-							for j in range(len(ProcessMessage["Request"][i]["DATA"])):
+							for j in range(len(HttpMessage["Request"][i]["DATA"])):
 								O.append("")
 
-								if len(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProcessMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O, "fromTool":fromTool}):
-									for output in ProcessMessage["Request"][i]["DATA"][j]["OUTPUT"]:
+								if len(HttpMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(HttpMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O, "fromTool":fromTool}):
+									for output in HttpMessage["Request"][i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
 										if len(LOOPVAR) > 0:
@@ -777,8 +1068,15 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 													local_vars["LOOPDATA"] = LOOPDATA
 													if output["exec_func"]:
 														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
 													else:
 														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 														break
 										else:
 											if output["exec_func"]:
@@ -786,8 +1084,11 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 											else:
 												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+											if self.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 								if self.config_menu.menu_debug_mode_item.getState():
-									print("- O["+str(j)+"]: {}".format(repr(O[j])))
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 							RequestParser.request_headers.delete("X-TPBCF-ENABLED", case_insensitive=True)
 							newRequest = RequestParser.unparse(update_content_length=True)
@@ -823,8 +1124,10 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 					envs.update(default_envs())
 
 					if self.config_menu.menu_AutoRefresh_item.getState():
-						ProcessMessage["Request"] =  []
-						ProcessMessage["Response"] =  []
+						ProxyMessage["Request"] =  []
+						ProxyMessage["Response"] =  []
+						HttpMessage["Request"] =  []
+						HttpMessage["Response"] =  []
 						CipherTab["EncryptRequest"] =  []
 						CipherTab["DecryptRequest"] =  []
 						CipherTab["EncryptResponse"] =  []
@@ -835,11 +1138,17 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								print("[TP-BCF] " + target_file)
 							JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
 							if JDKSObject:
-								if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-									ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+								if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
 
-								if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-									ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
+								if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+								if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+
+								if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
 
 								if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 									CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
@@ -854,20 +1163,21 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 									CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 	
 						if self.config_menu.menu_debug_mode_item.getState():
-							print("ProcessMessage", ProcessMessage)
+							print("ProxyMessage", ProxyMessage)
+							print("HttpMessage", HttpMessage)
 							print("CipherTab", CipherTab)
 
 
-					for i in range(len(ProcessMessage["Response"])):
+					for i in range(len(HttpMessage["Response"])):
 						match = True
-						for pattern in ProcessMessage["Response"][i]["PATTERN"]:
+						for pattern in HttpMessage["Response"][i]["PATTERN"]:
 							if not re.search(pattern, newResponse):
 								match = False
 								break
 
-						if not re.search(ProcessMessage["Response"][i]["TARGET"], target): match = False
+						if not re.search(HttpMessage["Response"][i]["TARGET"], target): match = False
 
-						if not re.search(ProcessMessage["Response"][i]["ENDPOINT"], endpoint): match = False
+						if not re.search(HttpMessage["Response"][i]["ENDPOINT"], endpoint): match = False
 
 						if match:
 							if self.config_menu.menu_debug_mode_item.getState():
@@ -883,11 +1193,11 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 								"O": O
 							}
 
-							for j in range(len(ProcessMessage["Response"][i]["DATA"])):
+							for j in range(len(HttpMessage["Response"][i]["DATA"])):
 								O.append("")
 
-								if len(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProcessMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O, "fromTool":fromTool}):
-									for output in ProcessMessage["Response"][i]["DATA"][j]["OUTPUT"]:
+								if len(HttpMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(HttpMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O, "fromTool":fromTool}):
+									for output in HttpMessage["Response"][i]["DATA"][j]["OUTPUT"]:
 										LOOPVAR = output["LOOPVAR"]
 										CONDITION = output["CONDITION"]
 										if len(LOOPVAR) > 0:
@@ -896,8 +1206,15 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 													local_vars["LOOPDATA"] = LOOPDATA
 													if output["exec_func"]:
 														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
 													else:
 														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 														break
 										else:
 											if output["exec_func"]:
@@ -905,8 +1222,11 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener):
 											else:
 												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+											if self.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 								if self.config_menu.menu_debug_mode_item.getState():
-									print("- O["+str(j)+"]: {}".format(repr(O[j])))
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 							newResponse = ResponseParser.unparse(update_content_length=True)
 							break
@@ -940,13 +1260,15 @@ class CipherMessageEditorTab(IMessageEditorTab):
 
 
 	def isEnabled(self, content, isRequest):
-		global TARGET, ProcessMessage, CipherTab
+		global TARGET, ProxyMessage, HttpMessage, CipherTab
 
 		match = False
 		if content:
 			if self._extender.config_menu.menu_AutoRefresh_item.getState():
-				ProcessMessage["Request"] =  []
-				ProcessMessage["Response"] =  []
+				ProxyMessage["Request"] =  []
+				ProxyMessage["Response"] =  []
+				HttpMessage["Request"] =  []
+				HttpMessage["Response"] =  []
 				CipherTab["EncryptRequest"] =  []
 				CipherTab["DecryptRequest"] =  []
 				CipherTab["EncryptResponse"] =  []
@@ -957,11 +1279,17 @@ class CipherMessageEditorTab(IMessageEditorTab):
 						print("[TP-BCF] " + target_file)
 					JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
 					if JDKSObject:
-						if JDKSObject.get("ProcessMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-							ProcessMessage["Request"] += JDKSObject.get("ProcessMessage||Request")["value"]
+						if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+							ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
 
-						if JDKSObject.get("ProcessMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-							ProcessMessage["Response"] += JDKSObject.get("ProcessMessage||Response")["value"]
+						if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+							ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+						if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+							HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+
+						if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+							HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
 
 						if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
 							CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
@@ -976,7 +1304,8 @@ class CipherMessageEditorTab(IMessageEditorTab):
 							CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
 
 				if self._extender.config_menu.menu_debug_mode_item.getState():
-					print("ProcessMessage", ProcessMessage)
+					print("ProxyMessage", ProxyMessage)
+					print("HttpMessage", HttpMessage)
 					print("CipherTab", CipherTab)
 
 			if isRequest:
@@ -1075,8 +1404,16 @@ class CipherMessageEditorTab(IMessageEditorTab):
 													local_vars["LOOPDATA"] = LOOPDATA
 													if output["exec_func"]:
 														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self._extender.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 													else:
 														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self._extender.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 														break
 										else:
 											if output["exec_func"]:
@@ -1084,8 +1421,11 @@ class CipherMessageEditorTab(IMessageEditorTab):
 											else:
 												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+											if self._extender.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 								if self._extender.config_menu.menu_debug_mode_item.getState():
-									print("- O["+str(j)+"]: {}".format(repr(O[j])))
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 							RequestParser.request_headers.update("X-TPBCF-ENABLED", True, case_insensitive=True, allow_new_key=True)
 							newContent = RequestParser.unparse(update_content_length=True)
@@ -1137,8 +1477,15 @@ class CipherMessageEditorTab(IMessageEditorTab):
 													local_vars["LOOPDATA"] = LOOPDATA
 													if output["exec_func"]:
 														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self._extender.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
 													else:
 														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self._extender.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 														break
 										else:
 											if output["exec_func"]:
@@ -1146,8 +1493,11 @@ class CipherMessageEditorTab(IMessageEditorTab):
 											else:
 												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+											if self._extender.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 								if self._extender.config_menu.menu_debug_mode_item.getState():
-									print("- O["+str(j)+"]: {}".format(repr(O[j])))
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 							ResponseParser.response_headers.update("X-TPBCF-ENABLED", True, case_insensitive=True, allow_new_key=True)
 							newContent = ResponseParser.unparse(update_content_length=True)
@@ -1209,8 +1559,15 @@ class CipherMessageEditorTab(IMessageEditorTab):
 												local_vars["LOOPDATA"] = LOOPDATA
 												if output["exec_func"]:
 													safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+													if self._extender.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
 												else:
 													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+													if self._extender.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 													break
 									else:
 										if output["exec_func"]:
@@ -1218,8 +1575,11 @@ class CipherMessageEditorTab(IMessageEditorTab):
 										else:
 											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+										if self._extender.config_menu.menu_debug_mode_item.getState():
+											print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 							if self._extender.config_menu.menu_debug_mode_item.getState():
-								print("- O["+str(j)+"]: {}".format(repr(O[j])))
+								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 						RequestParser.request_headers.delete("X-TPBCF-ENABLED", case_insensitive=True)
 						newContent = RequestParser.unparse(update_content_length=True)
@@ -1267,8 +1627,15 @@ class CipherMessageEditorTab(IMessageEditorTab):
 												local_vars["LOOPDATA"] = LOOPDATA
 												if output["exec_func"]:
 													safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+													if self._extender.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
 												else:
 													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+													if self._extender.config_menu.menu_debug_mode_item.getState():
+														print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 													break
 									else:
 										if output["exec_func"]:
@@ -1276,8 +1643,11 @@ class CipherMessageEditorTab(IMessageEditorTab):
 										else:
 											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
 
+										if self._extender.config_menu.menu_debug_mode_item.getState():
+											print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
 							if self._extender.config_menu.menu_debug_mode_item.getState():
-								print("- O["+str(j)+"]: {}".format(repr(O[j])))
+								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
 
 						ResponseParser.response_headers.delete("X-TPBCF-ENABLED", case_insensitive=True)
 						newContent = ResponseParser.unparse(update_content_length=True)
