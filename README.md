@@ -56,10 +56,14 @@ _Provides properties to access details of the current HTTP Request. Use these at
 - `RequestParser.request_body`: Request body (string or parsed object) as JSON_Duplicate_Keys object
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -80,10 +84,14 @@ _Provides properties to access details of the current HTTP Response. Use these a
 - `ResponseParser.response_body`: Response body as JSON_Duplicate_Keys object
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -111,12 +119,18 @@ env['your-custom-variable']
 ```
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
@@ -135,14 +149,22 @@ env['your-custom-variable']
 _A temporary dictionary for storing intermediate values or results during rule execution_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -162,25 +184,33 @@ _A temporary dictionary for storing intermediate values or results during rule e
 
 ---
 ### fromTool
-_Define the tool name from which the request was sent. It is used in the Request/ Response configuration of ProcessMessage. The value of fromTool can be: Scanner, Proxy, Intruder, Repeater, Extender_
+_Define the tool name from which the request was sent. It is used in the Request/ Response configuration of HttpMessage. The value of fromTool can be: Scanner, Proxy, Intruder, Repeater, Extender_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
 
 ---
 ### O
 _A list for storing temporary results of expressions or calculations in each processing step. Only used within the Index of the current DATA and cannot be shared with the Index of another DATA_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -203,8 +233,10 @@ _A list for storing temporary results of expressions or calculations in each pro
 _A variable used in loops, holding the current item being iterated in a rule. Only used within the Index of the current OUTPUT and cannot be shared with the Index of another OUTPUT_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||EncryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptResponse||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
@@ -216,14 +248,22 @@ _A variable used in loops, holding the current item being iterated in a rule. On
 _Module for parsing and manipulating HTTP request data_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -246,14 +286,22 @@ _Module for parsing and manipulating HTTP request data_
 _Module for parsing and manipulating HTTP response data_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -276,14 +324,22 @@ _Module for parsing and manipulating HTTP response data_
 _Flatten/ Unflatten and Load(s)/ Dump(s) JSON File/ Object with Duplicate Keys_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -306,14 +362,22 @@ _Flatten/ Unflatten and Load(s)/ Dump(s) JSON File/ Object with Duplicate Keys_
 _Python's built-in regular expression library_
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -334,14 +398,22 @@ _Python's built-in regular expression library_
 ---
 ### Utils module
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -385,6 +457,27 @@ Utils.RandomNumber(0, 1000)
 ```
 Utils.RandomString(10)
 # OUTPUT: 'Wz<:1<.YSC'
+```
+
+---
+### Utils.toUTF8_Overlong(message: str, numBytes: int=2) -> byte
+```
+Utils.toUTF8_Overlong('TPCyberSec', numBytes=2)
+# OUTPUT: b'\xc1\x94\xc1\x90\xc1\x83\xc1\xb9\xc1\xa2\xc1\xa5\xc1\xb2\xc1\x93\xc1\xa5\xc1\xa3'
+```
+
+---
+### Utils.toUTF16(message: str, type: str="LE") -> byte
+```
+Utils.toUTF16('TPCyberSec')
+# OUTPUT: b'T\x00P\x00C\x00y\x00b\x00e\x00r\x00S\x00e\x00c\x00'
+```
+
+---
+### Utils.toUTF32(message: str, type: str="LE") -> byte
+```
+Utils.toUTF32('TPCyberSec')
+# OUTPUT: b'T\x00\x00\x00P\x00\x00\x00C\x00\x00\x00y\x00\x00\x00b\x00\x00\x00e\x00\x00\x00r\x00\x00\x00S\x00\x00\x00e\x00\x00\x00c\x00\x00\x00'
 ```
 
 ---
@@ -444,16 +537,57 @@ Utils.UrlDecode('TP%20Cyber%20Security')
 ```
 
 ---
+### Utils.HTMLEncode(message: str, type: str="hex", padding: int=0) -> str
+```
+Utils.HTMLEncode('TPCyberSec')
+# OUTPUT: '&#x54;&#x50;&#x43;&#x79;&#x62;&#x65;&#x72;&#x53;&#x65;&#x63;'
+
+Utils.HTMLEncode('TPCyberSec', type="dec")
+# OUTPUT: '&#84;&#80;&#67;&#121;&#98;&#101;&#114;&#83;&#101;&#99;'
+```
+
+---
+### Utils.XML2JSON(message: str, ordered_dict: bool=False) -> dict
+```
+xml_string = '''<?xml version="1.0" encoding="UTF-8"?>
+<note>
+  <to>Tove</to>
+  <from>Jani</from>
+  <heading>Reminder</heading>
+  <body>Don't forget me this weekend!</body>
+</note>'''
+
+Utils.XML2JSON(xml_string)
+# OUTPUT: {'note': {'to': {'#text': 'Tove'}, 'from': {'#text': 'Jani'}, 'heading': {'#text': 'Reminder'}, 'body': {'#text': "Don't forget me this weekend!"}}}
+```
+
+---
+### Utils.JSON2XML(message: dict) -> str
+```
+json_object = {'note': {'to': {'#text': 'Tove'}, 'from': {'#text': 'Jani'}, 'heading': {'#text': 'Reminder'}, 'body': {'#text': "Don't forget me this weekend!"}}}
+Utils.JSON2XML(json_object)
+# OUTPUT: <?xml version="1.0" encoding="UTF-8"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don&apos;t forget me this weekend!</body></note>
+```
+
+---
 ### MFA_Generator
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -490,14 +624,22 @@ MFA_Generator.HOTP("JBSWY3DPEHPK3PXP", 1)
 ---
 ### Nonce_Generator
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -543,14 +685,22 @@ QR_Generator.initQR("KHQR_Corporate").unparse(QRObj)
 ```
 
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -571,14 +721,22 @@ QR_Generator.initQR("KHQR_Corporate").unparse(QRObj)
 ---
 ### Crypto.Symmetric modules
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -681,14 +839,22 @@ DESCipher('DES/ECB/NoPadding').decrypt('D{UZ\x18Ck\xcc\x80\x10*p\x7f\t\x7f9', 'T
 ---
 ### Crypto.Asymmetric modules
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -773,14 +939,22 @@ RSACipher('SHA256withRSA').verify('TPCyberSec', '\xae\x9bYl\xcc\xf1is\xc7\xff8\x
 ---
 ### Crypto.Hash modules
 **Usage scope in the configuration file:**
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
-- `ProcessMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `ProxyMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Request||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
+- `HttpMessage||Response||[ResponseIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||ExprStmt`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||CONDITION`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||LOOPVAR`
 - `CipherTab||DecryptRequest||[RequestIndex]||DATA||[DataIndex]||OUTPUT||[OutputIndex]||CONDITION`
@@ -992,7 +1166,33 @@ SHA512().hexdigest('TPCyberSec')
 ## Rule Structure
 ```json
 {
-	"ProcessMessage": {
+	"ProxyMessage": {
+		"Request": [
+			{
+				"TARGET": StringRegex,
+				"ENDPOINT": StringRegex,
+				"PATTERN": List<StringRegex>,
+				"DATA": [
+					{
+						"CONDITION": StringExpr,
+						"OUTPUT": [
+							{
+								"LOOPVAR": String,
+								"CONDITION": StringExpr,
+								"exec_func": Boolean,
+								"ExprStmt": StringExpr
+							},
+							...
+						]
+					},
+					...
+				]
+			},
+			...
+		],
+		"Response": [ ... ]
+	},
+	"HttpMessage": {
 		"Request": [
 			{
 				"TARGET": StringRegex,
@@ -1051,7 +1251,7 @@ SHA512().hexdigest('TPCyberSec')
 ## How to Write a Rule
 Each rule in TP-BCF is defined in the JSON configuration file and consists of the following main components:
 - **TARGET**: A regex string to match the domain you want the rule to apply to
-- **ENDPOINT**: A regex string to match the specific endpoint or path you want the rule to apply to (ProcessMessage only)
+- **ENDPOINT**: A regex string to match the specific endpoint or path you want the rule to apply to (ProxyMessage and HttpMessage only)
 - **PATTERN**: A list of regex patterns to match specific content in the request or response
 - **DATA**: A list of processing steps. Each step can have:
   - **CONDITION**: (Optional) A Python expression. If true, the OUTPUT block will be executed
@@ -1064,7 +1264,7 @@ Each rule in TP-BCF is defined in the JSON configuration file and consists of th
 ### Example Rule Structure
 ```json
 {
-  "ProcessMessage": {
+  "HttpMessage": {
     "Request": [
       {
         "TARGET": "example.com",
@@ -1117,14 +1317,15 @@ See the [examples](./example/) directory for more sample rules
 
 ---
 # 📝 CHANGELOG
-### [TP-BCF dev](https://github.com/TPCyberSec/TP-BCF/tree/dev)
+### [TP-BCF v2026.5.18](https://github.com/TPCyberSec/TP-BCF/tree/2026.5.18)
+- **Added**: Handle HTTP Requests/ Responses at the Proxy tab with the `ProxyMessage` rules, allowing users to intercept and modify traffic before it reaches the target server or after it leaves the server, providing more control over the data flow
 - **Added**: RSA encyption/ decryption functions with support for various padding schemes ("RSA/ECB/OAEPPadding", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
 
 ### [TP-BCF v2026.3.15](https://github.com/TPCyberSec/TP-BCF/tree/2026.3.15)
 - **Updated**: Encryption/ Decryption and Signature/ Verify functions accept raw data as input. Encryption and Signature return Base64-encoded data, while Decryption returns raw data, allowing more flexible use cases
 
 ### [TP-BCF v2025.12.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.12.18)
-- **Added**: New field `ENDPOINT` to match specific endpoint or path in `ProcessMessage` rules
+- **Added**: New field `ENDPOINT` to match specific endpoint or path in `HttpMessage` rules
 - **Added**: New menu item `Reload Refresh TARGETS Config` to manually reload all target configurations
 
 ### [TP-BCF v2025.9.18](https://github.com/TPCyberSec/TP-BCF/tree/2025.9.18)

@@ -1,17 +1,48 @@
 {
-	"ProcessMessage": {
+	"HttpMessage": {
 		"Response": [
 			{
+				"#": "Skip decrypting the aes_key and data in the response body for Interactsh since the aes_key and data are already decrypted for display in the Interactsh UI, so we just need to modify the response body to handle the plaintext data for display in the frontend",
+				"TARGET": "app\\.interactsh\\.com",
+				"ENDPOINT": "",
+				"PATTERN": [
+					"let o;r.aes_key&&\\(f=r\\.aes_key,\\(o=new nd\\.default\\(\\{b:2048\\}\\)\\)\\.setOptions\\(\\{environment:\"browser\",encryptionScheme:\\{hash:\"sha256\",scheme:\"pkcs1_oaep\"\\}\\}\\),o\\.importKey\\(t,\"pkcs8-private\"\\),l=o\\.decrypt\\(f,\"base64\"\\)\\);let i=await nO\\(l,r\\),"
+				],
+				"DATA": [
+					{
+                        "CONDITION": "fromTool == 'Proxy'",
+                        "OUTPUT": [
+                            {
+								"#": "Extract response body",
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.get('data')['value']"
+							},
+							{
+								"#": "Modify the resonse body to handle the plaintext data for display in the frontend",
+								"LOOPVAR": "",
+								"CONDITION": "",
+								"exec_func": false,
+								"ExprStmt": "ResponseParser.response_body.update('data', O[0].replace('let o;r.aes_key&&(f=r.aes_key,(o=new nd.default({b:2048})).setOptions({environment:\"browser\",encryptionScheme:{hash:\"sha256\",scheme:\"pkcs1_oaep\"}}),o.importKey(t,\"pkcs8-private\"),l=o.decrypt(f,\"base64\"));let i=await nO(l,r),','let i=r.data,'))"
+							}
+                        ]
+                    }
+				]
+			},
+			{
+				"#": "Decrypt the aes_key in the response body using the RSA private key and then use the decrypted AES key to decrypt the data in the response body",
 				"TARGET": "oast.fun",
 				"ENDPOINT": "",
 				"PATTERN": [
-					"\"aes_key\""
+					"\"aes_key\":\".+?\""
 				],
 				"DATA": [
 					{
 						"CONDITION": "",
 						"OUTPUT": [
 							{
+								"#": "Set the Content-Type header to application/json to ensure the frontend JavaScript code processes the response body as JSON data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false, 
@@ -23,18 +54,21 @@
 						"CONDITION": "",
 						"OUTPUT": [
 							{
+								"#": "Extract the aes_key value from the response body",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false, 
 								"ExprStmt": "ResponseParser.response_body.get('data||aes_key')['value']"
 							},
 							{
+								"#": "Decrypt the aes_key using the RSA private key",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['aes_key'] = RSACipher('RSA/ECB/OAEPPadding').decrypt(Utils.base64Decode(O[1]), PrivateKey=envs['Interactsh_privateKey'], OAEPHashAlg='SHA-256', MGFHashAlg='MGF1')"
 							},
 							{
+								"#": "Update the aes_key in the response body with the decrypted value (re-encoded in base64 to ensure it remains a string)",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false,
@@ -46,18 +80,21 @@
 						"CONDITION": "ResponseParser.response_body.get('data||data')['value'] != None",
 						"OUTPUT": [
 							{
+								"#": "Initialize an empty list to store the decrypted data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['DecryptedData'] = []"
 							},
 							{
+								"#": "Decrypt each data item using the decrypted AES key",
 								"LOOPVAR": "ResponseParser.response_body.get('data||data')['value']",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['DecryptedData'].append(jdks.loads(AESCipher('AES/CTR/NoPadding').decrypt(Utils.base64Decode(LOOPDATA)[16:],TEMP['aes_key'],Utils.base64Decode(LOOPDATA)[:16])).getObject())"
 							},
 							{
+								"#": "Update the data in the response body with the decrypted data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false,
@@ -72,15 +109,17 @@
 	"CipherTab": {
 		"DecryptResponse": [
 			{
+				"#": "Decrypt the aes_key in the response body using the RSA private key and then use the decrypted AES key to decrypt the data in the response body",
 				"TARGET": "oast.fun",
 				"PATTERN": [
-					"\"aes_key\""
+					"\"aes_key\":\".{256,}?\""
 				],
 				"DATA": [
 					{
 						"CONDITION": "",
 						"OUTPUT": [
 							{
+								"#": "Set the Content-Type header to application/json to ensure the frontend JavaScript code processes the response body as JSON data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false, 
@@ -92,18 +131,21 @@
 						"CONDITION": "",
 						"OUTPUT": [
 							{
+								"#": "Extract the aes_key value from the response body",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false, 
 								"ExprStmt": "ResponseParser.response_body.get('data||aes_key')['value']"
 							},
 							{
+								"#": "Decrypt the aes_key using the RSA private key",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['aes_key'] = RSACipher('RSA/ECB/OAEPPadding').decrypt(Utils.base64Decode(O[1]), PrivateKey=envs['Interactsh_privateKey'], OAEPHashAlg='SHA-256', MGFHashAlg='MGF1')"
 							},
 							{
+								"#": "Update the aes_key in the response body with the decrypted value (re-encoded in base64 to ensure it remains a string)",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false,
@@ -115,18 +157,21 @@
 						"CONDITION": "ResponseParser.response_body.get('data||data')['value'] != None",
 						"OUTPUT": [
 							{
+								"#": "Initialize an empty list to store the decrypted data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['DecryptedData'] = []"
 							},
 							{
+								"#": "Decrypt each data item using the decrypted AES key",
 								"LOOPVAR": "ResponseParser.response_body.get('data||data')['value']",
 								"CONDITION": "",
 								"exec_func": true,
 								"ExprStmt": "TEMP['DecryptedData'].append(jdks.loads(AESCipher('AES/CTR/NoPadding').decrypt(Utils.base64Decode(LOOPDATA)[16:],TEMP['aes_key'],Utils.base64Decode(LOOPDATA)[:16])).getObject())"
 							},
 							{
+								"#": "Update the data in the response body with the decrypted data",
 								"LOOPVAR": "",
 								"CONDITION": "",
 								"exec_func": false,
