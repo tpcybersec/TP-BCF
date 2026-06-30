@@ -56,6 +56,8 @@ from TP_Generator import Utils, MFA_Generator, Nonce_Generator, QR_Generator
 from modules.Crypto.Symmetric.AESCipher import AESCipher
 from modules.Crypto.Symmetric.DESCipher import DESCipher
 from modules.Crypto.Asymmetric.RSACipher import RSACipher
+from modules.Crypto.Asymmetric.ECDSACipher import ECDSACipher
+from modules.Crypto.Asymmetric.KeyExchange import KeyExchange
 from modules.Crypto.Hash.CRC32 import CRC32
 from modules.Crypto.Hash.HMAC_MD5 import HMAC_MD5
 from modules.Crypto.Hash.HMAC_SHA1 import HMAC_SHA1
@@ -73,7 +75,7 @@ from modules.Crypto.Hash.SHA512 import SHA512
 
 
 EXTENSION_NAME = "TP-BCF"
-EXTENSION_VERSION = "2026.5.18"
+EXTENSION_VERSION = "2026.6.30"
 TARGET = "tpcybersec.com"
 TEMP = dict()
 fromTool = None
@@ -143,8 +145,10 @@ print("ProxyMessage", ProxyMessage)
 # Default environment variables
 def default_envs():
 	envs = OrderedDict()
-	envs["defaultPublicKey"] = "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuTwspB6ubxVDBIb7IL7sSinHDmZLk/7RYzOWzVmLZo7dzBKiOmAbvFMMGRXFZ/37eThQ7VP31qe6MCH7PhtuP+KKOFpfgQc3O9umo78Qut4NGuCYNiuRrRx2jv1KESS+zIxllelx/JmEbtrME3boMZJ7W/y/SL8dfhYuGZYuqrGOe2ZRwekWkxAUJlAlHT/keDU8qU3oGDgVIn6Ck5MW0o8yBoMsm7o1LfvAGdt5jdxATXy1pzIi3Tr/bLVVkOPmaYrmRQ1McQLSekGA0+hn/MSMTIKRBA4JtSLaQ7YPZQPqwlvYm56958Lr8FPcQ7dz3KXWRY5wG+KSf+3vWnRZ3QIDAQAB-----END PUBLIC KEY-----"
-	envs["defaultPrivateKey"] = "-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5PCykHq5vFUMEhvsgvuxKKccOZkuT/tFjM5bNWYtmjt3MEqI6YBu8UwwZFcVn/ft5OFDtU/fWp7owIfs+G24/4oo4Wl+BBzc726ajvxC63g0a4Jg2K5GtHHaO/UoRJL7MjGWV6XH8mYRu2swTdugxkntb/L9Ivx1+Fi4Zli6qsY57ZlHB6RaTEBQmUCUdP+R4NTypTegYOBUifoKTkxbSjzIGgyybujUt+8AZ23mN3EBNfLWnMiLdOv9stVWQ4+ZpiuZFDUxxAtJ6QYDT6Gf8xIxMgpEEDgm1ItpDtg9lA+rCW9ibnr3nwuvwU9xDt3PcpdZFjnAb4pJ/7e9adFndAgMBAAECggEAAQJP5/D22EoQXGTz10DS/rBtkimCfeLkdxrf1myHct6SXLs5QQInBIabSUOyGJfsl8NzxWcwsW2meP6mZLc3iYeNYzMy0/wbE+tlY/z1dV8iSSQyEBF6sKu4BZ1hmuhNVcXqA8AKy+p2Kzhr5is+po56t4yP6jCIU5iBVchYprtggIeLUDAKIGterKEYxJt/N8pdJ0oGhx4cNxcRBDylqdm0HJphyP19BtBOsFtdT9cN6khNpsWGl7UirvlI8eoJxfkXzSgRLn0XoZhl1gDKAD9XCWnII9nzZyINUY1ICG2fISMMGGCNs9YmaY0wzMkhNvty8fPoWH+XrvNyomxIQQKBgQDiMQqPsRYZEw51CsGyyJFALHUfCxsLv6lXeFgCzBY74rksF4CrrNR1rcrvbMe06P54el+dtGevnpb+C1x/iFUkncGW6hNZii/dpKlxUvFTnYYWAITOiOJltDliFlXt7jCZEkGO9WcYRmTibve3pgjxB79MxEo4bJQCRSHTd6ZaLQKBgQDRpWUxaA5IdwuX7/pxG9ekFvxkJCpjDj14rkA832SLs1Zoq/d4D6/0WTp+c6wHL7fzU1DFbgCwB560ktlAvI77J6tapl1hps6RYh9H3bz+Hb6d6eFlhdyUKuTX1XXw6RcK3pYtYOltavl3bwAal/7TEKjrdS59qwx2BlsbQvQ8cQKBgQCHjjRyIQLJTC5h3mxvJNxHxVz7mcA/rkFidnDoXD8G7L1ku0EVoaJCVEFGc77LoMbAlTYwYSmyiiybW1u34pCEPTcDpoyqILLG9iPGEpsmLUVqci0lScvEf9nT+ubMjO77DYHUlyWN2sIjIbW7jfnV2XrAGvMQFaIuKhg3j4FWkQKBgQCYfp2QBae2EFnviBD864q9AjdOxHvMl9QhD2cMoFZrw+SLuOMGgyqzK6B/0LYGeDBvH2B2a+C2KqTHprW/ACllCWL8Sl1MpeBGIkCsrt9FXO+FwFVC2s8rO9RAJzZmKbaoImbM1VyWSaTyulwx+/PRJaIpu5A4uw4SX+cvelFcEQKBgHz2GicI/2cgYlRaeeR8tDSrfVNkhkF1qQZpC3GlTLMjmzZQzLXkjxvYRjNfSJaTZ9CMlaD1PFnqu7Uk9KhUwkClGnSsvFBO2MrRh6P32XS5eDVoP7jZ1pk5/dvuB1RSJqLT63FRaBi8XPSPeT/9po9lCfipK2tlNnggFMPZf3qQ-----END PRIVATE KEY-----"
+	envs["defaultRSA2048PublicKey"] = "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuTwspB6ubxVDBIb7IL7sSinHDmZLk/7RYzOWzVmLZo7dzBKiOmAbvFMMGRXFZ/37eThQ7VP31qe6MCH7PhtuP+KKOFpfgQc3O9umo78Qut4NGuCYNiuRrRx2jv1KESS+zIxllelx/JmEbtrME3boMZJ7W/y/SL8dfhYuGZYuqrGOe2ZRwekWkxAUJlAlHT/keDU8qU3oGDgVIn6Ck5MW0o8yBoMsm7o1LfvAGdt5jdxATXy1pzIi3Tr/bLVVkOPmaYrmRQ1McQLSekGA0+hn/MSMTIKRBA4JtSLaQ7YPZQPqwlvYm56958Lr8FPcQ7dz3KXWRY5wG+KSf+3vWnRZ3QIDAQAB-----END PUBLIC KEY-----"
+	envs["defaultRSA2048PrivateKey"] = "-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5PCykHq5vFUMEhvsgvuxKKccOZkuT/tFjM5bNWYtmjt3MEqI6YBu8UwwZFcVn/ft5OFDtU/fWp7owIfs+G24/4oo4Wl+BBzc726ajvxC63g0a4Jg2K5GtHHaO/UoRJL7MjGWV6XH8mYRu2swTdugxkntb/L9Ivx1+Fi4Zli6qsY57ZlHB6RaTEBQmUCUdP+R4NTypTegYOBUifoKTkxbSjzIGgyybujUt+8AZ23mN3EBNfLWnMiLdOv9stVWQ4+ZpiuZFDUxxAtJ6QYDT6Gf8xIxMgpEEDgm1ItpDtg9lA+rCW9ibnr3nwuvwU9xDt3PcpdZFjnAb4pJ/7e9adFndAgMBAAECggEAAQJP5/D22EoQXGTz10DS/rBtkimCfeLkdxrf1myHct6SXLs5QQInBIabSUOyGJfsl8NzxWcwsW2meP6mZLc3iYeNYzMy0/wbE+tlY/z1dV8iSSQyEBF6sKu4BZ1hmuhNVcXqA8AKy+p2Kzhr5is+po56t4yP6jCIU5iBVchYprtggIeLUDAKIGterKEYxJt/N8pdJ0oGhx4cNxcRBDylqdm0HJphyP19BtBOsFtdT9cN6khNpsWGl7UirvlI8eoJxfkXzSgRLn0XoZhl1gDKAD9XCWnII9nzZyINUY1ICG2fISMMGGCNs9YmaY0wzMkhNvty8fPoWH+XrvNyomxIQQKBgQDiMQqPsRYZEw51CsGyyJFALHUfCxsLv6lXeFgCzBY74rksF4CrrNR1rcrvbMe06P54el+dtGevnpb+C1x/iFUkncGW6hNZii/dpKlxUvFTnYYWAITOiOJltDliFlXt7jCZEkGO9WcYRmTibve3pgjxB79MxEo4bJQCRSHTd6ZaLQKBgQDRpWUxaA5IdwuX7/pxG9ekFvxkJCpjDj14rkA832SLs1Zoq/d4D6/0WTp+c6wHL7fzU1DFbgCwB560ktlAvI77J6tapl1hps6RYh9H3bz+Hb6d6eFlhdyUKuTX1XXw6RcK3pYtYOltavl3bwAal/7TEKjrdS59qwx2BlsbQvQ8cQKBgQCHjjRyIQLJTC5h3mxvJNxHxVz7mcA/rkFidnDoXD8G7L1ku0EVoaJCVEFGc77LoMbAlTYwYSmyiiybW1u34pCEPTcDpoyqILLG9iPGEpsmLUVqci0lScvEf9nT+ubMjO77DYHUlyWN2sIjIbW7jfnV2XrAGvMQFaIuKhg3j4FWkQKBgQCYfp2QBae2EFnviBD864q9AjdOxHvMl9QhD2cMoFZrw+SLuOMGgyqzK6B/0LYGeDBvH2B2a+C2KqTHprW/ACllCWL8Sl1MpeBGIkCsrt9FXO+FwFVC2s8rO9RAJzZmKbaoImbM1VyWSaTyulwx+/PRJaIpu5A4uw4SX+cvelFcEQKBgHz2GicI/2cgYlRaeeR8tDSrfVNkhkF1qQZpC3GlTLMjmzZQzLXkjxvYRjNfSJaTZ9CMlaD1PFnqu7Uk9KhUwkClGnSsvFBO2MrRh6P32XS5eDVoP7jZ1pk5/dvuB1RSJqLT63FRaBi8XPSPeT/9po9lCfipK2tlNnggFMPZf3qQ-----END PRIVATE KEY-----"
+	envs["defaultEC256r1PublicKey"] = "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhyMMvdnaui5hFj5iitqp2H2siJUJh8Siy49fBhdCWhivTFzs36ee6dgAhrmaXDQ3oGRhwgH0qxDmI2WaABIXSQ==-----END PUBLIC KEY-----"
+	envs["defaultEC256r1PrivateKey"] = "-----BEGIN PRIVATE KEY-----MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCBt63OSea+CQorfYNy9WAVqiHtQvaIzNLozTfLlAMWQMg==-----END PRIVATE KEY-----"
 	envs["defaultSecretKey"] = "C]$L)D}Sd<s!eRkW.hZT`MK9jQGN[4z~"
 	envs["defaultIV"] = "X.4njY@(,RN&~f*W"
 	envs["defaultSalt"] = "z#}k%>v'53^P<4Ky"
@@ -167,7 +171,7 @@ def safe_eval(expr, local_vars=None):
 	local_vars["TEMP"] = TEMP
 
 	restricted_globals = { "__builtins__": {} }
-	allowed_classes = { "jdks": jdks, "re": re, "TP_HTTP_REQUEST_PARSER": TP_HTTP_REQUEST_PARSER, "TP_HTTP_RESPONSE_PARSER": TP_HTTP_RESPONSE_PARSER, "Utils": Utils, "MFA_Generator": MFA_Generator, "Nonce_Generator": Nonce_Generator, "QR_Generator": QR_Generator, "AESCipher": AESCipher, "DESCipher": DESCipher, "RSACipher": RSACipher, "CRC32": CRC32, "HMAC_MD5": HMAC_MD5, "HMAC_SHA1": HMAC_SHA1, "HMAC_SHA224": HMAC_SHA224, "HMAC_SHA256": HMAC_SHA256, "HMAC_SHA384": HMAC_SHA384, "HMAC_SHA512": HMAC_SHA512, "MD2": MD2, "MD5": MD5, "SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512 }
+	allowed_classes = { "jdks": jdks, "re": re, "OrderedDict": OrderedDict, "TP_HTTP_REQUEST_PARSER": TP_HTTP_REQUEST_PARSER, "TP_HTTP_RESPONSE_PARSER": TP_HTTP_RESPONSE_PARSER, "Utils": Utils, "MFA_Generator": MFA_Generator, "Nonce_Generator": Nonce_Generator, "QR_Generator": QR_Generator, "AESCipher": AESCipher, "DESCipher": DESCipher, "RSACipher": RSACipher, "ECDSACipher": ECDSACipher, "KeyExchange": KeyExchange, "CRC32": CRC32, "HMAC_MD5": HMAC_MD5, "HMAC_SHA1": HMAC_SHA1, "HMAC_SHA224": HMAC_SHA224, "HMAC_SHA256": HMAC_SHA256, "HMAC_SHA384": HMAC_SHA384, "HMAC_SHA512": HMAC_SHA512, "MD2": MD2, "MD5": MD5, "SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512 }
 	restricted_globals.update(allowed_classes)
 
 	return eval(expr, restricted_globals, local_vars)
@@ -178,7 +182,7 @@ def safe_exec(code, local_vars=None):
 	local_vars["TEMP"] = TEMP
 
 	restricted_globals = { "__builtins__": {} }
-	allowed_classes = { "jdks": jdks, "re": re, "TP_HTTP_REQUEST_PARSER": TP_HTTP_REQUEST_PARSER, "TP_HTTP_RESPONSE_PARSER": TP_HTTP_RESPONSE_PARSER, "Utils": Utils, "MFA_Generator": MFA_Generator, "Nonce_Generator": Nonce_Generator, "QR_Generator": QR_Generator, "AESCipher": AESCipher, "DESCipher": DESCipher, "RSACipher": RSACipher, "CRC32": CRC32, "HMAC_MD5": HMAC_MD5, "HMAC_SHA1": HMAC_SHA1, "HMAC_SHA224": HMAC_SHA224, "HMAC_SHA256": HMAC_SHA256, "HMAC_SHA384": HMAC_SHA384, "HMAC_SHA512": HMAC_SHA512, "MD2": MD2, "MD5": MD5, "SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512 }
+	allowed_classes = { "jdks": jdks, "re": re, "OrderedDict": OrderedDict, "TP_HTTP_REQUEST_PARSER": TP_HTTP_REQUEST_PARSER, "TP_HTTP_RESPONSE_PARSER": TP_HTTP_RESPONSE_PARSER, "Utils": Utils, "MFA_Generator": MFA_Generator, "Nonce_Generator": Nonce_Generator, "QR_Generator": QR_Generator, "AESCipher": AESCipher, "DESCipher": DESCipher, "RSACipher": RSACipher, "ECDSACipher": ECDSACipher, "KeyExchange": KeyExchange, "CRC32": CRC32, "HMAC_MD5": HMAC_MD5, "HMAC_SHA1": HMAC_SHA1, "HMAC_SHA224": HMAC_SHA224, "HMAC_SHA256": HMAC_SHA256, "HMAC_SHA384": HMAC_SHA384, "HMAC_SHA512": HMAC_SHA512, "MD2": MD2, "MD5": MD5, "SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512 }
 	restricted_globals.update(allowed_classes)
 
 	exec(code, restricted_globals, local_vars)
@@ -201,6 +205,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_extender_decRes_item = None
 		self.menu_all_encReq_item = None
 		self.menu_all_decRes_item = None
+		self.menu_request_handler_item = None
+		self.menu_response_handler_item = None
 		self.menu_AutoRefresh_item = None
 		self.selected_targets = set()
 		self.menu_debug_mode_item = None
@@ -217,27 +223,33 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_encReq.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_all_encReq_item = JCheckBoxMenuItem("All Tools")
-		self.menu_all_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_all_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_all_encReq_item.setForeground(Color.BLACK)
 		self.menu_all_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_scanner_encReq_item = JCheckBoxMenuItem("Scanner")
-		self.menu_scanner_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_scanner_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_scanner_encReq_item.setForeground(Color.BLACK)
 		self.menu_scanner_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_proxy_encReq_item = JCheckBoxMenuItem("Proxy")
-		self.menu_proxy_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_proxy_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_proxy_encReq_item.setForeground(Color.BLACK)
 		self.menu_proxy_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_intruder_encReq_item = JCheckBoxMenuItem("Intruder")
-		self.menu_intruder_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_intruder_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_intruder_encReq_item.setForeground(Color.BLACK)
 		self.menu_intruder_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_repeater_encReq_item = JCheckBoxMenuItem("Repeater")
-		self.menu_repeater_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_repeater_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_repeater_encReq_item.setForeground(Color.BLACK)
 		self.menu_repeater_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_extender_encReq_item = JCheckBoxMenuItem("Extender")
-		self.menu_extender_encReq_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_extender_encReq_item.setForeground(Color(220, 230, 245))
+		self.menu_extender_encReq_item.setForeground(Color.BLACK)
 		self.menu_extender_encReq_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_encReq.add(self.menu_all_encReq_item)
@@ -266,32 +278,38 @@ class MenuBar(Runnable, IExtensionStateListener):
 		# Decrypt Response
 		self.menu_decRes = JMenu("Decrypt Response")
 		self.menu_decRes.setOpaque(True)
-		self.menu_decRes.setBackground(Color(36, 85, 145)) # steel blue
+		self.menu_decRes.setBackground(Color(52, 101, 164))
 		self.menu_decRes.setForeground(Color.WHITE) # white
 		self.menu_decRes.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_all_decRes_item = JCheckBoxMenuItem("All Tools")
-		self.menu_all_decRes_item.setForeground(Color(0, 128, 255)) # deep sky blue
+		self.menu_all_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_all_decRes_item.setForeground(Color.BLACK)
 		self.menu_all_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_scanner_decRes_item = JCheckBoxMenuItem("Scanner")
-		self.menu_scanner_decRes_item.setForeground(Color(0, 128, 255))  # deep sky blue
+		self.menu_scanner_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_scanner_decRes_item.setForeground(Color.BLACK)
 		self.menu_scanner_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_proxy_decRes_item = JCheckBoxMenuItem("Proxy")
-		self.menu_proxy_decRes_item.setForeground(Color(0, 128, 255))  # deep sky blue
+		self.menu_proxy_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_proxy_decRes_item.setForeground(Color.BLACK)
 		self.menu_proxy_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_intruder_decRes_item = JCheckBoxMenuItem("Intruder")
-		self.menu_intruder_decRes_item.setForeground(Color(0, 128, 255))  # deep sky blue
+		self.menu_intruder_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_intruder_decRes_item.setForeground(Color.BLACK)
 		self.menu_intruder_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_repeater_decRes_item = JCheckBoxMenuItem("Repeater")
-		self.menu_repeater_decRes_item.setForeground(Color(0, 128, 255))  # deep sky blue
+		self.menu_repeater_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_repeater_decRes_item.setForeground(Color.BLACK)
 		self.menu_repeater_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_extender_decRes_item = JCheckBoxMenuItem("Extender")
-		self.menu_extender_decRes_item.setForeground(Color(0, 128, 255))  # deep sky blue
+		self.menu_extender_decRes_item.setForeground(Color(230, 240, 250))
+		self.menu_extender_decRes_item.setForeground(Color.BLACK)
 		self.menu_extender_decRes_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		self.menu_decRes.add(self.menu_all_decRes_item)
@@ -317,10 +335,31 @@ class MenuBar(Runnable, IExtensionStateListener):
 			if tool.getText() not in ["Proxy", "Extender"]:
 				tool.setSelected(True)
 
+		# Proxy Handlers
+		self.menu_proxy_handlers = JMenu("Proxy Handlers")
+		self.menu_proxy_handlers.setOpaque(True)
+		self.menu_proxy_handlers.setBackground(Color(76, 119, 53))
+		self.menu_proxy_handlers.setForeground(Color.WHITE) # white
+		self.menu_proxy_handlers.setFont(Font("Monospaced", Font.BOLD, 12))
+
+		self.menu_request_handler_item = JCheckBoxMenuItem("Decrypt Request")
+		self.menu_request_handler_item.setForeground(Color(223, 235, 213))
+		self.menu_request_handler_item.setForeground(Color.BLACK)
+		self.menu_request_handler_item.setFont(Font("Monospaced", Font.BOLD, 12))
+
+		self.menu_response_handler_item = JCheckBoxMenuItem("Encrypt Response")
+		self.menu_response_handler_item.setForeground(Color(223, 235, 213))
+		self.menu_response_handler_item.setForeground(Color.BLACK)
+		self.menu_response_handler_item.setFont(Font("Monospaced", Font.BOLD, 12))
+
+		self.menu_proxy_handlers.add(self.menu_request_handler_item)
+		self.menu_proxy_handlers.addSeparator()
+		self.menu_proxy_handlers.add(self.menu_response_handler_item)
+
 		# Environment Variables
 		self.menu_envs = JMenu("Environment Variables")
 		self.menu_envs.setOpaque(True)
-		self.menu_envs.setBackground(Color(85, 107, 47)) # dark olive green
+		self.menu_envs.setBackground(Color(97, 122, 57))
 		self.menu_envs.setForeground(Color.WHITE) # white
 		self.menu_envs.setFont(Font("Monospaced", Font.BOLD, 12))
 		self.load_env_vars()
@@ -328,7 +367,7 @@ class MenuBar(Runnable, IExtensionStateListener):
 		# TARGETS
 		self.menu_targets = JMenu("TARGETS")
 		self.menu_targets.setOpaque(True)
-		self.menu_targets.setBackground(Color(70, 130, 180)) # steel blue
+		self.menu_targets.setBackground(Color(43, 112, 173))
 		self.menu_targets.setForeground(Color.WHITE) # white
 		self.menu_targets.setFont(Font("Monospaced", Font.BOLD, 12))
 		self.load_targets()
@@ -336,18 +375,21 @@ class MenuBar(Runnable, IExtensionStateListener):
 		# Reload Refresh TARGETS Config
 		self.menu_ReloadRefresh = JMenuItem("Reload Refresh TARGETS Config")
 		self.menu_ReloadRefresh.setOpaque(True)
-		self.menu_ReloadRefresh.setBackground(Color(255, 255, 204)) # light yellow
+		self.menu_ReloadRefresh.setBackground(Color(255, 250, 205))
+		self.menu_ReloadRefresh.setForeground(Color.BLACK)
 		self.menu_ReloadRefresh.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		# Auto Refresh TARGETS Config
 		self.menu_AutoRefresh_item = JCheckBoxMenuItem("Auto Refresh TARGETS Config")
-		self.menu_AutoRefresh_item.setForeground(Color(70, 130, 180)) # steel blue
+		self.menu_AutoRefresh_item.setForeground(Color(230, 240, 255))
+		self.menu_AutoRefresh_item.setForeground(Color.BLUE)
 		self.menu_AutoRefresh_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		# Enable Debug Mode
 		self.menu_debug_mode_item = JCheckBoxMenuItem("DEBUG Mode")
 		self.menu_debug_mode_item.setSelected(True)
-		self.menu_debug_mode_item.setForeground(Color(255, 69, 0)) # red
+		self.menu_debug_mode_item.setForeground(Color(255, 235, 235))
+		self.menu_debug_mode_item.setForeground(Color.RED)
 		self.menu_debug_mode_item.setFont(Font("Monospaced", Font.BOLD, 12))
 
 		# Add to root menu
@@ -355,6 +397,9 @@ class MenuBar(Runnable, IExtensionStateListener):
 		self.menu_button.add(self.menu_encReq)
 		self.menu_button.addSeparator()
 		self.menu_button.add(self.menu_decRes)
+		self.menu_button.addSeparator()
+		self.menu_button.addSeparator()
+		self.menu_button.add(self.menu_proxy_handlers)
 		self.menu_button.addSeparator()
 		self.menu_button.addSeparator()
 		self.menu_button.add(self.menu_envs)
@@ -399,6 +444,7 @@ class MenuBar(Runnable, IExtensionStateListener):
 			default_env.setToolTipText(str(value))
 			default_env.setOpaque(True)
 			default_env.setBackground(Color(255, 228, 181)) # moccasin
+			default_env.setForeground(Color.BLACK)
 			default_env.setFont(Font("Monospaced", Font.BOLD, 12))
 
 			self.menu_envs.add(default_env)
@@ -410,11 +456,13 @@ class MenuBar(Runnable, IExtensionStateListener):
 			parent_menu.setToolTipText(str(value))
 			parent_menu.setOpaque(True)
 			parent_menu.setBackground(Color(224, 255, 255)) # light cyan
+			parent_menu.setForeground(Color.BLACK)
 			parent_menu.setFont(Font("Monospaced", Font.BOLD, 12))
 
 			edit_item = JMenuItem("Edit")
 			edit_item.setOpaque(True)
-			edit_item.setBackground(Color(204, 229, 255)) # light blue
+			edit_item.setBackground(Color(210, 230, 255))
+			edit_item.setForeground(Color.BLACK)
 			edit_item.setFont(Font("Monospaced", Font.BOLD, 12))
 			edit_item.addActionListener(lambda event, k=key: self.edit_env_var(k))
 			parent_menu.add(edit_item)
@@ -422,7 +470,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 			remove_item = JMenuItem("Remove")
 			remove_item.setOpaque(True)
-			remove_item.setBackground(Color(255, 204, 204)) # light red
+			remove_item.setBackground(Color(255, 210, 210))
+			remove_item.setForeground(Color.RED)
 			remove_item.setFont(Font("Monospaced", Font.BOLD, 12))
 			remove_item.addActionListener(lambda event, k=key: self.remove_env_var(k))
 			parent_menu.add(remove_item)
@@ -434,7 +483,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 		add_item = JMenuItem("( + ) Add New Variable...")
 		add_item.setOpaque(True)
-		add_item.setBackground(Color(204, 255, 204)) # light green
+		add_item.setBackground(Color(210, 255, 210))
+		add_item.setForeground(Color.GREEN)
 		add_item.setFont(Font("Monospaced", Font.BOLD, 12))
 		add_item.addActionListener(self.add_env_var)
 		self.menu_envs.add(add_item)
@@ -491,11 +541,13 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 				parent_menu = JMenu(target_name)
 				parent_menu.setOpaque(True)
-				parent_menu.setBackground(Color(240, 240, 240)) # light gray
+				parent_menu.setBackground(Color(220, 235, 250))
+				parent_menu.setForeground(Color.BLACK)
 				parent_menu.setFont(Font("Monospaced", Font.BOLD, 12))
 				checkbox_item = JCheckBoxMenuItem("Enable")
 				checkbox_item.setSelected(target_enable)
-				checkbox_item.setForeground(Color(0, 128, 0)) # green
+				checkbox_item.setForeground(Color(220, 255, 220))
+				checkbox_item.setForeground(Color.GREEN)
 				checkbox_item.setFont(Font("Monospaced", Font.BOLD, 12))
 				checkbox_item.addActionListener(MenuBar.TargetCheckListener(target_name, target_path, self))
 				parent_menu.add(checkbox_item)
@@ -503,7 +555,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 				edit_item = JMenuItem("Edit")
 				edit_item.setOpaque(True)
-				edit_item.setBackground(Color(204, 229, 255)) # light blue
+				edit_item.setBackground(Color(210, 230, 255))
+				edit_item.setForeground(Color.BLACK)
 				edit_item.setFont(Font("Monospaced", Font.BOLD, 12))
 				edit_item.addActionListener(lambda event, n=target_name: self.edit_target(n))
 				parent_menu.add(edit_item)
@@ -511,7 +564,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 				remove_item = JMenuItem("Remove")
 				remove_item.setOpaque(True)
-				remove_item.setBackground(Color(255, 204, 204)) # light red
+				remove_item.setBackground(Color(255, 210, 210))
+				remove_item.setForeground(Color.RED)
 				remove_item.setFont(Font("Monospaced", Font.BOLD, 12))
 				remove_item.addActionListener(lambda event, n=target_name: self.remove_target(n))
 				parent_menu.add(remove_item)
@@ -523,7 +577,8 @@ class MenuBar(Runnable, IExtensionStateListener):
 
 		add_item = JMenuItem("( + ) Add New Target...")
 		add_item.setOpaque(True)
-		add_item.setBackground(Color(204, 255, 204)) # light green
+		add_item.setBackground(Color(210, 255, 210))
+		add_item.setForeground(Color.GREEN)
 		add_item.setFont(Font("Monospaced", Font.BOLD, 12))
 		add_item.addActionListener(self.add_target)
 		self.menu_targets.add(add_item)
@@ -704,255 +759,257 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener, IProx
 		url = str(messageInfo.getHttpService().getProtocol()) + "//" + target + endpoint
 
 		if messageIsRequest:
-			oriRequest = messageInfo.getRequest()
-			newRequest = self._helpers.bytesToString(oriRequest)
+			if self.config_menu.menu_request_handler_item.getState():
+				oriRequest = messageInfo.getRequest()
+				newRequest = self._helpers.bytesToString(oriRequest)
 
-			try:
-				envs = jdks.load(ENV_FILE, skipDuplicated=True)
-				if not envs:
-					envs = jdks.JSON_DUPLICATE_KEYS({})
-				envs = envs.getObject()
-				envs.update(default_envs())
+				try:
+					envs = jdks.load(ENV_FILE, skipDuplicated=True)
+					if not envs:
+						envs = jdks.JSON_DUPLICATE_KEYS({})
+					envs = envs.getObject()
+					envs.update(default_envs())
 
-				if self.config_menu.menu_AutoRefresh_item.getState():
-					ProxyMessage["Request"] = []
-					ProxyMessage["Response"] = []
-					HttpMessage["Request"] =  []
-					HttpMessage["Response"] =  []
-					CipherTab["EncryptRequest"] =  []
-					CipherTab["DecryptRequest"] =  []
-					CipherTab["EncryptResponse"] =  []
-					CipherTab["DecryptResponse"] =  []
+					if self.config_menu.menu_AutoRefresh_item.getState():
+						ProxyMessage["Request"] = []
+						ProxyMessage["Response"] = []
+						HttpMessage["Request"] =  []
+						HttpMessage["Response"] =  []
+						CipherTab["EncryptRequest"] =  []
+						CipherTab["DecryptRequest"] =  []
+						CipherTab["EncryptResponse"] =  []
+						CipherTab["DecryptResponse"] =  []
 
-					for target_file in self.config_menu.selected_targets:
+						for target_file in self.config_menu.selected_targets:
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("[TP-BCF] " + target_file)
+							JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
+							if JDKSObject:
+								if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
+								
+								if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+								if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+								
+								if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
+
+								if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
+								if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
+								if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
+								if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
+
 						if self.config_menu.menu_debug_mode_item.getState():
-							print("[TP-BCF] " + target_file)
-						JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
-						if JDKSObject:
-							if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
-							
-							if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
-
-							if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
-							
-							if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
-
-							if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
-
-							if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
-
-							if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
-
-							if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
-
-					if self.config_menu.menu_debug_mode_item.getState():
-						print("ProxyMessage", ProxyMessage)
-						print("HttpMessage", HttpMessage)
-						print("CipherTab", CipherTab)
+							print("ProxyMessage", ProxyMessage)
+							print("HttpMessage", HttpMessage)
+							print("CipherTab", CipherTab)
 
 
-				for i in range(len(ProxyMessage["Request"])):
-					match = True
-					for pattern in ProxyMessage["Request"][i]["PATTERN"]:
-						if not re.search(pattern, newRequest):
-							match = False
+					for i in range(len(ProxyMessage["Request"])):
+						match = True
+						for pattern in ProxyMessage["Request"][i]["PATTERN"]:
+							if not re.search(pattern, newRequest):
+								match = False
+								break
+
+						if not re.search(ProxyMessage["Request"][i]["TARGET"], target): match = False
+
+						if not re.search(ProxyMessage["Request"][i]["ENDPOINT"], endpoint): match = False
+
+						if match:
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("-"*128)
+								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (processProxyMessage): "+url)
+
+							RequestParser = TP_HTTP_REQUEST_PARSER(newRequest, ordered_dict=True, skipDuplicated=False)
+							O = list()
+
+							local_vars = {
+								"envs": envs,
+								"RequestParser": RequestParser,
+								"O": O
+							}
+
+							for j in range(len(ProxyMessage["Request"][i]["DATA"])):
+								O.append("")
+
+								if len(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O}):
+									for output in ProxyMessage["Request"][i]["DATA"][j]["OUTPUT"]:
+										LOOPVAR = output["LOOPVAR"]
+										CONDITION = output["CONDITION"]
+										if len(LOOPVAR) > 0:
+											for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
+												if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
+													local_vars["LOOPDATA"] = LOOPDATA
+													if output["exec_func"]:
+														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+													else:
+														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+														break
+										else:
+											if output["exec_func"]:
+												safe_exec(output["ExprStmt"], local_vars=local_vars)
+											else:
+												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+											if self.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+								if self.config_menu.menu_debug_mode_item.getState():
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
+
+							newRequest = RequestParser.unparse(update_content_length=True)
 							break
 
-					if not re.search(ProxyMessage["Request"][i]["TARGET"], target): match = False
-
-					if not re.search(ProxyMessage["Request"][i]["ENDPOINT"], endpoint): match = False
-
-					if match:
-						if self.config_menu.menu_debug_mode_item.getState():
-							print("-"*128)
-							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (processProxyMessage): "+url)
-
-						RequestParser = TP_HTTP_REQUEST_PARSER(newRequest, ordered_dict=True)
-						O = list()
-
-						local_vars = {
-							"envs": envs,
-							"RequestParser": RequestParser,
-							"O": O
-						}
-
-						for j in range(len(ProxyMessage["Request"][i]["DATA"])):
-							O.append("")
-
-							if len(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Request"][i]["DATA"][j]["CONDITION"], local_vars={"RequestParser":RequestParser, "O":O}):
-								for output in ProxyMessage["Request"][i]["DATA"][j]["OUTPUT"]:
-									LOOPVAR = output["LOOPVAR"]
-									CONDITION = output["CONDITION"]
-									if len(LOOPVAR) > 0:
-										for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
-											if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
-												local_vars["LOOPDATA"] = LOOPDATA
-												if output["exec_func"]:
-													safe_exec(output["ExprStmt"], local_vars=local_vars)
-
-													if self.config_menu.menu_debug_mode_item.getState():
-														print("- O["+str(j)+"]: {}".format(repr(O[j])))
-												else:
-													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
-
-													if self.config_menu.menu_debug_mode_item.getState():
-														print("- O["+str(j)+"]: {}".format(repr(O[j])))
-
-													break
-									else:
-										if output["exec_func"]:
-											safe_exec(output["ExprStmt"], local_vars=local_vars)
-										else:
-											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
-
-										if self.config_menu.menu_debug_mode_item.getState():
-											print("- O["+str(j)+"]: {}".format(repr(O[j])))
-
-							if self.config_menu.menu_debug_mode_item.getState():
-								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
-
-						newRequest = RequestParser.unparse(update_content_length=True)
-						break
-
-				newRequest = self._helpers.stringToBytes(newRequest)
-				messageInfo.setRequest(newRequest)
-			except Exception as e:
-				if self.config_menu.menu_debug_mode_item.getState():
-					print("[TP-BCF] processProxyMessage - Request:", e)
-				messageInfo.setRequest(oriRequest)
+					newRequest = self._helpers.stringToBytes(newRequest)
+					messageInfo.setRequest(newRequest)
+				except Exception as e:
+					if self.config_menu.menu_debug_mode_item.getState():
+						print("[TP-BCF] processProxyMessage - Request:", e)
+					messageInfo.setRequest(oriRequest)
 		else:
-			oriResponse = messageInfo.getResponse()
-			newResponse = self._helpers.bytesToString(oriResponse)
+			if self.config_menu.menu_response_handler_item.getState():
+				oriResponse = messageInfo.getResponse()
+				newResponse = self._helpers.bytesToString(oriResponse)
 
-			try:
-				envs = jdks.load(ENV_FILE, skipDuplicated=True)
-				if not envs:
-					envs = jdks.JSON_DUPLICATE_KEYS({})
-				envs = envs.getObject()
-				envs.update(default_envs())
+				try:
+					envs = jdks.load(ENV_FILE, skipDuplicated=True)
+					if not envs:
+						envs = jdks.JSON_DUPLICATE_KEYS({})
+					envs = envs.getObject()
+					envs.update(default_envs())
 
-				if self.config_menu.menu_AutoRefresh_item.getState():
-					ProxyMessage["Request"] =  []
-					ProxyMessage["Response"] =  []
-					HttpMessage["Request"] =  []
-					HttpMessage["Response"] =  []
-					CipherTab["EncryptRequest"] =  []
-					CipherTab["DecryptRequest"] =  []
-					CipherTab["EncryptResponse"] =  []
-					CipherTab["DecryptResponse"] =  []
+					if self.config_menu.menu_AutoRefresh_item.getState():
+						ProxyMessage["Request"] =  []
+						ProxyMessage["Response"] =  []
+						HttpMessage["Request"] =  []
+						HttpMessage["Response"] =  []
+						CipherTab["EncryptRequest"] =  []
+						CipherTab["DecryptRequest"] =  []
+						CipherTab["EncryptResponse"] =  []
+						CipherTab["DecryptResponse"] =  []
 
-					for target_file in self.config_menu.selected_targets:
+						for target_file in self.config_menu.selected_targets:
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("[TP-BCF] " + target_file)
+							JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
+							if JDKSObject:
+								if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
+
+								if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
+
+								if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
+
+								if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
+
+								if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
+
+								if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
+
+								if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
+
+								if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
+									CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
+
 						if self.config_menu.menu_debug_mode_item.getState():
-							print("[TP-BCF] " + target_file)
-						JDKSObject = jdks.load(target_file, skipDuplicated=True, _isDebug_=True)
-						if JDKSObject:
-							if JDKSObject.get("ProxyMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								ProxyMessage["Request"] += JDKSObject.get("ProxyMessage||Request")["value"]
-
-							if JDKSObject.get("ProxyMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								ProxyMessage["Response"] += JDKSObject.get("ProxyMessage||Response")["value"]
-
-							if JDKSObject.get("HttpMessage||Request")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								HttpMessage["Request"] += JDKSObject.get("HttpMessage||Request")["value"]
-
-							if JDKSObject.get("HttpMessage||Response")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								HttpMessage["Response"] += JDKSObject.get("HttpMessage||Response")["value"]
-
-							if JDKSObject.get("CipherTab||EncryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["EncryptRequest"] += JDKSObject.get("CipherTab||EncryptRequest")["value"]
-
-							if JDKSObject.get("CipherTab||DecryptRequest")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["DecryptRequest"] += JDKSObject.get("CipherTab||DecryptRequest")["value"]
-
-							if JDKSObject.get("CipherTab||EncryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["EncryptResponse"] += JDKSObject.get("CipherTab||EncryptResponse")["value"]
-
-							if JDKSObject.get("CipherTab||DecryptResponse")["value"] != "JSON_DUPLICATE_KEYS_ERROR":
-								CipherTab["DecryptResponse"] += JDKSObject.get("CipherTab||DecryptResponse")["value"]
-
-					if self.config_menu.menu_debug_mode_item.getState():
-						print("ProxyMessage", ProxyMessage)
-						print("HttpMessage", HttpMessage)
-						print("CipherTab", CipherTab)
+							print("ProxyMessage", ProxyMessage)
+							print("HttpMessage", HttpMessage)
+							print("CipherTab", CipherTab)
 
 
-				for i in range(len(ProxyMessage["Response"])):
-					match = True
-					for pattern in ProxyMessage["Response"][i]["PATTERN"]:
-						if not re.search(pattern, newResponse):
-							match = False
+					for i in range(len(ProxyMessage["Response"])):
+						match = True
+						for pattern in ProxyMessage["Response"][i]["PATTERN"]:
+							if not re.search(pattern, newResponse):
+								match = False
+								break
+
+						if not re.search(ProxyMessage["Response"][i]["TARGET"], target): match = False
+
+						if not re.search(ProxyMessage["Response"][i]["ENDPOINT"], endpoint): match = False
+
+						if match:
+							if self.config_menu.menu_debug_mode_item.getState():
+								print("-"*128)
+								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (processProxyMessage): "+url)
+
+							ResponseParser = TP_HTTP_RESPONSE_PARSER(newResponse, ordered_dict=True, skipDuplicated=False)
+							O = list()
+
+							local_vars = {
+								"envs": envs,
+								"ResponseParser": ResponseParser,
+								"O": O
+							}
+
+							for j in range(len(ProxyMessage["Response"][i]["DATA"])):
+								O.append("")
+
+								if len(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O}):
+									for output in ProxyMessage["Response"][i]["DATA"][j]["OUTPUT"]:
+										LOOPVAR = output["LOOPVAR"]
+										CONDITION = output["CONDITION"]
+										if len(LOOPVAR) > 0:
+											for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
+												if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
+													local_vars["LOOPDATA"] = LOOPDATA
+													if output["exec_func"]:
+														safe_exec(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+													else:
+														O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+														if self.config_menu.menu_debug_mode_item.getState():
+															print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+														break
+										else:
+											if output["exec_func"]:
+												safe_exec(output["ExprStmt"], local_vars=local_vars)
+											else:
+												O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
+
+											if self.config_menu.menu_debug_mode_item.getState():
+												print("- O["+str(j)+"]: {}".format(repr(O[j])))
+
+								if self.config_menu.menu_debug_mode_item.getState():
+									print("=> O["+str(j)+"]: {}".format(repr(O[j])))
+
+							newResponse = ResponseParser.unparse(update_content_length=True)
 							break
 
-					if not re.search(ProxyMessage["Response"][i]["TARGET"], target): match = False
-
-					if not re.search(ProxyMessage["Response"][i]["ENDPOINT"], endpoint): match = False
-
-					if match:
-						if self.config_menu.menu_debug_mode_item.getState():
-							print("-"*128)
-							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (processProxyMessage): "+url)
-
-						ResponseParser = TP_HTTP_RESPONSE_PARSER(newResponse, ordered_dict=True)
-						O = list()
-
-						local_vars = {
-							"envs": envs,
-							"ResponseParser": ResponseParser,
-							"O": O
-						}
-
-						for j in range(len(ProxyMessage["Response"][i]["DATA"])):
-							O.append("")
-
-							if len(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"]) == 0 or safe_eval(ProxyMessage["Response"][i]["DATA"][j]["CONDITION"], local_vars={"ResponseParser":ResponseParser, "O":O}):
-								for output in ProxyMessage["Response"][i]["DATA"][j]["OUTPUT"]:
-									LOOPVAR = output["LOOPVAR"]
-									CONDITION = output["CONDITION"]
-									if len(LOOPVAR) > 0:
-										for LOOPDATA in safe_eval(LOOPVAR, local_vars=local_vars):
-											if len(CONDITION) == 0 or safe_eval(CONDITION, local_vars=local_vars):
-												local_vars["LOOPDATA"] = LOOPDATA
-												if output["exec_func"]:
-													safe_exec(output["ExprStmt"], local_vars=local_vars)
-
-													if self.config_menu.menu_debug_mode_item.getState():
-														print("- O["+str(j)+"]: {}".format(repr(O[j])))
-												else:
-													O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
-
-													if self.config_menu.menu_debug_mode_item.getState():
-														print("- O["+str(j)+"]: {}".format(repr(O[j])))
-
-													break
-									else:
-										if output["exec_func"]:
-											safe_exec(output["ExprStmt"], local_vars=local_vars)
-										else:
-											O[j] = safe_eval(output["ExprStmt"], local_vars=local_vars)
-
-										if self.config_menu.menu_debug_mode_item.getState():
-											print("- O["+str(j)+"]: {}".format(repr(O[j])))
-
-							if self.config_menu.menu_debug_mode_item.getState():
-								print("=> O["+str(j)+"]: {}".format(repr(O[j])))
-
-						newResponse = ResponseParser.unparse(update_content_length=True)
-						break
-
-				newResponse = self._helpers.stringToBytes(newResponse)
-				messageInfo.setResponse(newResponse)
-			except Exception as e:
-				if self.config_menu.menu_debug_mode_item.getState():
-					print("[TP-BCF] processProxyMessage - Response:", e)
-				messageInfo.setResponse(oriResponse)
+					newResponse = self._helpers.stringToBytes(newResponse)
+					messageInfo.setResponse(newResponse)
+				except Exception as e:
+					if self.config_menu.menu_debug_mode_item.getState():
+						print("[TP-BCF] processProxyMessage - Response:", e)
+					messageInfo.setResponse(oriResponse)
 
 
 	def processHttpMessage(self, toolFlag, messageIsRequest, messageInfo):
@@ -1046,7 +1103,7 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener, IProx
 								print("-"*128)
 								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (processHttpMessage): "+url)
 
-							RequestParser = TP_HTTP_REQUEST_PARSER(newRequest, ordered_dict=True)
+							RequestParser = TP_HTTP_REQUEST_PARSER(newRequest, ordered_dict=True, skipDuplicated=False)
 							O = list()
 
 							local_vars = {
@@ -1184,7 +1241,7 @@ class BurpExtender(IBurpExtender, IMessageEditorTabFactory, IHttpListener, IProx
 								print("-"*128)
 								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (processHttpMessage): "+url)
 
-							ResponseParser = TP_HTTP_RESPONSE_PARSER(newResponse, ordered_dict=True)
+							ResponseParser = TP_HTTP_RESPONSE_PARSER(newResponse, ordered_dict=True, skipDuplicated=False)
 							O = list()
 
 							local_vars = {
@@ -1310,7 +1367,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 
 			if isRequest:
 				newContent = self._extender._helpers.bytesToString(content)
-				RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True)
+				RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 
 				Host = RequestParser.request_headers.get("Host", case_insensitive=True)["value"]
 				if Host != "JSON_DUPLICATE_KEYS_ERROR": TARGET = Host
@@ -1331,7 +1388,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 				return match
 			else:
 				newContent = self._extender._helpers.bytesToString(content)
-				ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True)
+				ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 
 				if ResponseParser.response_headers.get("X-TPBCF-ENABLED", case_insensitive=True)["value"] != "JSON_DUPLICATE_KEYS_ERROR": return False
 
@@ -1382,7 +1439,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 								print("-"*128)
 								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (DecryptRequestTab)")
 
-							RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True)
+							RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 							O = list()
 
 							local_vars = {
@@ -1455,7 +1512,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 								print("-"*128)
 								print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (DecryptResponseTab)")
 
-							ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True)
+							ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 							O = list()
 
 							local_vars = {
@@ -1537,7 +1594,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 							print("-"*128)
 							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Request (EncryptRequestTab)")
 
-						RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True)
+						RequestParser = TP_HTTP_REQUEST_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 						O = list()
 
 						local_vars = {
@@ -1605,7 +1662,7 @@ class CipherMessageEditorTab(IMessageEditorTab):
 							print("-"*128)
 							print("["+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"] [TP-BCF] Response (EncryptResponseTab)")
 
-						ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True)
+						ResponseParser = TP_HTTP_RESPONSE_PARSER(newContent, ordered_dict=True, skipDuplicated=False)
 						O = list()
 
 						local_vars = {

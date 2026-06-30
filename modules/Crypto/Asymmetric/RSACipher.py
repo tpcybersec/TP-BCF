@@ -55,7 +55,7 @@ class RSACipher:
 			return None
 
 		if OAEPHashAlg and MGFHashAlg:
-			if self.algorithm == "RSA/ECB/OAEPWithSHA-256AndMGF1Padding":
+			if self.algorithm in ["RSA/ECB/OAEPWithSHA-1AndMGF1Padding", "RSA/ECB/OAEPWithSHA-224AndMGF1Padding", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA-512AndMGF1Padding"]:
 				instance.init(Cipher.ENCRYPT_MODE, encryptKey, OAEPParameterSpec(OAEPHashAlg, MGFHashAlg, MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT))
 			elif self.algorithm == "RSA/ECB/OAEPPadding":
 				instance.init(Cipher.ENCRYPT_MODE, encryptKey, OAEPParameterSpec(OAEPHashAlg, MGFHashAlg, MGF1ParameterSpec(OAEPHashAlg), PSource.PSpecified.DEFAULT))
@@ -86,7 +86,7 @@ class RSACipher:
 			return None
 
 		if OAEPHashAlg and MGFHashAlg:
-			if self.algorithm == "RSA/ECB/OAEPWithSHA-256AndMGF1Padding":
+			if self.algorithm in ["RSA/ECB/OAEPWithSHA-1AndMGF1Padding", "RSA/ECB/OAEPWithSHA-224AndMGF1Padding", "RSA/ECB/OAEPWithSHA-256AndMGF1Padding", "RSA/ECB/OAEPWithSHA-384AndMGF1Padding", "RSA/ECB/OAEPWithSHA-512AndMGF1Padding"]:
 				instance.init(Cipher.DECRYPT_MODE, decryptKey, OAEPParameterSpec(OAEPHashAlg, MGFHashAlg, MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT))
 			elif self.algorithm == "RSA/ECB/OAEPPadding":
 				instance.init(Cipher.DECRYPT_MODE, decryptKey, OAEPParameterSpec(OAEPHashAlg, MGFHashAlg, MGF1ParameterSpec(OAEPHashAlg), PSource.PSpecified.DEFAULT))

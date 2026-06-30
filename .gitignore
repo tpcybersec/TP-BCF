@@ -13,9 +13,15 @@
 !/modules/__init__.py
 !/modules/Crypto
 !/modules/Crypto/__init__.py
+!/modules/Crypto/Symmetric
+!/modules/Crypto/Symmetric/__init__.py
+!/modules/Crypto/Symmetric/AESCipher.py
+!/modules/Crypto/Symmetric/DESCipher.PY
 !/modules/Crypto/Asymmetric
 !/modules/Crypto/Asymmetric/__init__.py
 !/modules/Crypto/Asymmetric/RSACipher.py
+!/modules/Crypto/Asymmetric/ECDSACipher.py
+!/modules/Crypto/Asymmetric/KeyExchange.py
 !/modules/Crypto/Hash
 !/modules/Crypto/Hash/__init__.py
 !/modules/Crypto/Hash/CRC32.py
@@ -32,7 +38,3 @@
 !/modules/Crypto/Hash/SHA256.py
 !/modules/Crypto/Hash/SHA384.py
 !/modules/Crypto/Hash/SHA512.py
-!/modules/Crypto/Symmetric
-!/modules/Crypto/Symmetric/__init__.py
-!/modules/Crypto/Symmetric/AESCipher.py
-!/modules/Crypto/Symmetric/DESCipher.PY
